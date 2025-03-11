@@ -38,8 +38,7 @@ class GetOptions(TypedDict, total=False):
 
     if_match: str | None
     """
-    Request will succeed if the `ObjectMeta::e_tag` matches
-    otherwise returning [`PreconditionError`][obstore.exceptions.PreconditionError].
+    Request will succeed if the `ObjectMeta::e_tag` matches.
 
     See <https://datatracker.ietf.org/doc/html/rfc9110#name-if-match>
 
@@ -54,8 +53,7 @@ class GetOptions(TypedDict, total=False):
 
     if_none_match: str | None
     """
-    Request will succeed if the `ObjectMeta::e_tag` does not match
-    otherwise returning [`NotModifiedError`][obstore.exceptions.NotModifiedError].
+    Request will succeed if the `ObjectMeta::e_tag` does not match.
 
     See <https://datatracker.ietf.org/doc/html/rfc9110#section-13.1.2>
 
@@ -77,8 +75,7 @@ class GetOptions(TypedDict, total=False):
 
     if_modified_since: datetime | None
     """
-    Request will succeed if the object has not been modified since
-    otherwise returning [`PreconditionError`][obstore.exceptions.PreconditionError].
+    Request will succeed if the object has not been modified since.
 
     Some stores, such as S3, will only return `NotModified` for exact
     timestamp matches, instead of for any timestamp greater than or equal.
@@ -88,8 +85,7 @@ class GetOptions(TypedDict, total=False):
 
     range: tuple[int, int] | list[int] | OffsetRange | SuffixRange
     """
-    Request transfer of only the specified range of bytes
-    otherwise returning [`NotModifiedError`][obstore.exceptions.NotModifiedError].
+    Request transfer of only the specified range of bytes.
 
     The semantics of this tuple are:
 

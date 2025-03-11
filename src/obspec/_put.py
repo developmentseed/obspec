@@ -40,11 +40,9 @@ There are three modes:
 - Overwrite: Perform an atomic write operation, overwriting any object present at the
   provided path.
 - Create: Perform an atomic write operation, returning
-  [`AlreadyExistsError`][obstore.exceptions.AlreadyExistsError] if an object already
-  exists at the provided path.
+  an error if an object already exists at the provided path.
 - Update: Perform an atomic write operation if the current version of the object matches
-  the provided [`UpdateVersion`][obspec.UpdateVersion], returning
-  [`PreconditionError`][obstore.exceptions.PreconditionError] otherwise.
+  the provided [`UpdateVersion`][obspec.UpdateVersion], returning an error otherwise.
 
 If a string is provided, it must be one of:
 

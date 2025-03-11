@@ -37,9 +37,11 @@ nav:
       - api/get.md
       - api/head.md
       - api/list.md
+      - api/meta.md
       - api/put.md
       - api/rename.md
       - api/attributes.md
+      - api/arrow.md
   - CHANGELOG.md
 
 watch:

@@ -22,15 +22,15 @@ extra:
 
 nav:
   - "index.md"
-  - User Guide:
-      - getting-started.md
-      - cookbook.md
-      - authentication.md
-      - integrations.md
-      - performance.md
-      - fsspec.md
-  - Blog:
-      - blog/index.md
+  # - User Guide:
+  #     - getting-started.md
+  #     - cookbook.md
+  #     - authentication.md
+  #     - integrations.md
+  #     - performance.md
+  #     - fsspec.md
+  # - Blog:
+  #     - blog/index.md
   - API Reference:
       - api/copy.md
       - api/delete.md
@@ -39,10 +39,7 @@ nav:
       - api/list.md
       - api/put.md
       - api/rename.md
-      - api/sign.md
       - api/attributes.md
-      - api/exceptions.md
-      - api/file.md
   - CHANGELOG.md
 
 watch:
@@ -53,7 +50,7 @@ theme:
   language: en
   name: material
   custom_dir: docs/overrides
-  logo: assets/logo_no_text.png
+  # logo: assets/logo_no_text.png
   palette:
     # Palette toggle for automatic mode
     - media: "(prefers-color-scheme)"
@@ -63,8 +60,8 @@ theme:
 
     # Palette toggle for light mode
     - media: "(prefers-color-scheme: light)"
-      primary: default
-      accent: deep orange
+      primary: blue grey
+      # accent: deep orange
       toggle:
         icon: material/brightness-7
         name: Switch to dark mode
@@ -72,8 +69,8 @@ theme:
     # Palette toggle for dark mode
     - media: "(prefers-color-scheme: dark)"
       scheme: slate
-      primary: default
-      accent: deep orange
+      primary: blue grey
+      # accent: deep orange
       toggle:
         icon: material/brightness-4
         name: Switch to system preference

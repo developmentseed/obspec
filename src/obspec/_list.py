@@ -73,7 +73,7 @@ class ListStream(Protocol[ListChunkType_co]):
         ...
 
 
-class List(Protocol[ListChunkType_co]):
+class List(Protocol):
     @overload
     def list(
         self,
@@ -192,7 +192,7 @@ class List(Protocol[ListChunkType_co]):
         ...
 
 
-class ListWithDelimiter(Protocol[ListChunkType_co]):
+class ListWithDelimiter(Protocol):
     @overload
     def list_with_delimiter(
         self,
@@ -245,7 +245,7 @@ class ListWithDelimiter(Protocol[ListChunkType_co]):
         ...
 
 
-class ListWithDelimiterAsync(Protocol[ListChunkType_co]):
+class ListWithDelimiterAsync(Protocol):
     @overload
     async def list_with_delimiter_async(
         self,

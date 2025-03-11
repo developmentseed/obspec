@@ -2,10 +2,26 @@
 name = "obspec"
 version = "0.1.0-beta.1"
 description = "Object storage interface definitions for Python."
+license = "MIT"
 readme = "README.md"
 authors = [{ name = "Kyle Barron", email = "kyle@developmentseed.org" }]
 requires-python = ">=3.9"
 dependencies = []
+keywords = []
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3 :: Only",
+    "Programming Language :: Python :: 3",
+]
+
+[project.urls]
+homepage = "https://developmentseed.org/obstore/latest/"
+documentation = "https://developmentseed.org/obstore/latest/"
+repository = "https://github.com/developmentseed/obstore"
+issues = "https://github.com/developmentseed/obstore/issues"
+changelog = "https://github.com/developmentseed/obstore/blob/main/obspec/CHANGELOG.md"
 
 [build-system]
 requires = ["hatchling"]

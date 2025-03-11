@@ -1,0 +1,71 @@
+[project]
+name = "obspec"
+version = "0.1.0-beta.1"
+description = "Object storage interface definitions for Python."
+readme = "README.md"
+authors = [{ name = "Kyle Barron", email = "kyle@developmentseed.org" }]
+requires-python = ">=3.9"
+dependencies = []
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.uv]
+dev-dependencies = [
+    "arro3-core>=0.4.2",
+    "griffe>=1.6.0",
+    "griffe-inherited-docstrings>=1.0.1",
+    "ipykernel>=6.29.5",
+    "mike>=2.1.3",
+    "mkdocs-material[imaging]>=9.6.3",
+    "mkdocs>=1.6.1",
+    "mkdocstrings>=0.27.0",
+    "mkdocstrings-python>=1.13.0",
+    "pip>=24.2",
+    "pytest-asyncio>=0.24.0",
+    "pytest>=8.3.3",
+    "ruff>=0.8.4",
+]
+
+[tool.ruff.lint]
+select = ["ALL"]
+ignore = [
+    "D104",   # Missing docstring in public package
+    "EM101",
+    "FIX002", # Line contains TODO, consider resolving the issue
+    "PYI021", # docstring-in-stub
+    "PYI051", # redundant-literal-union
+    "PYI011", # typed-argument-default-in-stub
+    "TD",     # Todo comments
+    "TRY003", # Avoid specifying long messages outside the exception class
+]
+
+[tool.ruff.lint.per-file-ignores]
+"*.pyi" = [
+    "ANN204", # Missing return type annotation for special method
+    "E501",   # Line too long
+]
+"tests/*" = [
+    "S101",    # assert
+    "ANN201",  # Missing return type annotation for public function
+    "ANN202",  # Missing return type annotation for private function `it`
+    "D100",    # Missing docstring in public module
+    "D103",    # Missing docstring in public function
+    "PLR2004", # Magic value used in comparison, consider replacing `100` with a constant variable
+    "S301",    # `pickle` and modules that wrap it can be unsafe when used to deserialize untrusted data, possible security issue
+    "SLF001",  # Private member accessed
+]
+
+[tool.ruff.lint.pydocstyle]
+convention = "google"
+
+[tool.ruff.extend-per-file-ignores]
+"__init__.py" = [
+    "F401", # Allow unused imports in __init__.py files
+    "F403", # unable to detect undefined names
+]
+
+[tool.pytest.ini_options]
+addopts = "-v"
+testpaths = ["tests"]

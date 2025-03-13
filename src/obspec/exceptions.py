@@ -38,7 +38,10 @@ class NotModifiedError(BaseError):
 
 
 class NotImplementedError(BaseError, NotImplementedError):  # noqa: A001
-    """Error when an operation is not implemented."""
+    """Error when an operation is not implemented.
+
+    Subclasses from the built-in [NotImplementedError][].
+    """
 
 
 class PermissionDeniedError(BaseError):

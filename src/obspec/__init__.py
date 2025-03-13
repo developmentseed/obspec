@@ -28,3 +28,4 @@ from ._list import (
 from ._meta import ObjectMeta
 from ._put import Put, PutAsync, PutMode, PutResult, UpdateVersion
 from ._rename import Rename, RenameAsync
+from ._version import __version__

@@ -1,0 +1,3 @@
+# Exceptions
+
+::: obspec.exceptions

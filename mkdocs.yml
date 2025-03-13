@@ -40,6 +40,7 @@ nav:
       - api/meta.md
       - api/put.md
       - api/rename.md
+      - api/exceptions.md
       - api/attributes.md
       - api/arrow.md
   - CHANGELOG.md
@@ -119,8 +120,6 @@ plugins:
             show_source: false
             show_symbol_type_toc: true
             signature_crossrefs: true
-            extensions:
-              - griffe_inherited_docstrings
 
           import:
             - https://arrow.apache.org/docs/objects.inv

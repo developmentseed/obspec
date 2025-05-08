@@ -1,4 +1,4 @@
-"""Arrow type hints."""
+"""Arrow protocol type hints for use in [list][obspec.List] calls."""
 
 from __future__ import annotations
 

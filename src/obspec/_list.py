@@ -21,7 +21,7 @@ Then an Arrow `RecordBatch` will be returned instead.
 
 
 class ListResult(TypedDict, Generic[ListChunkType_co]):
-    """Result of a list call.
+    """Result of a `list_with_delimiter` call.
 
     Includes objects, prefixes (directories) and a token for the next set of results.
     Individual result sets may be limited to 1,000 objects based on the underlying
@@ -36,9 +36,7 @@ class ListResult(TypedDict, Generic[ListChunkType_co]):
 
 
 class ListIterator(Protocol[ListChunkType_co]):
-    """A stream of [ObjectMeta][obspec.ObjectMeta] that can be polled in a sync or
-    async fashion.
-    """  # noqa: D205
+    """A stream of [ObjectMeta][obspec.ObjectMeta] that can be polled synchronously."""
 
     def __iter__(self) -> Self:
         """Return `Self` as an async iterator."""
@@ -58,9 +56,7 @@ class ListIterator(Protocol[ListChunkType_co]):
 
 
 class ListStream(Protocol[ListChunkType_co]):
-    """A stream of [ObjectMeta][obspec.ObjectMeta] that can be polled in a sync or
-    async fashion.
-    """  # noqa: D205
+    """A stream of [ObjectMeta][obspec.ObjectMeta] that can be polled asynchronously."""
 
     def __aiter__(self) -> Self:
         """Return `Self` as an async iterator."""

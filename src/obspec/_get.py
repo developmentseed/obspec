@@ -125,21 +125,12 @@ class GetOptions(TypedDict, total=False):
 class GetResult(Protocol):
     """Result for a get request.
 
-    You can materialize the entire buffer by using either `bytes` or `bytes_async`, or
-    you can stream the result using `stream`. `__iter__` and `__aiter__` are implemented
-    as aliases to `stream`, so you can alternatively call `iter()` or `aiter()` on
-    `GetResult` to start an iterator.
+    You can materialize the entire buffer by using `bytes`, or you can stream the result
+    using `stream`. `__iter__` is implemented as an alias to `stream`, so you can
+    alternatively call `iter()` on `GetResult` to start an iterator.
 
-    Using as an async iterator:
-    ```py
-    resp = await obs.get_async(store, path)
-    # 5MB chunk size in stream
-    stream = resp.stream(min_chunk_size=5 * 1024 * 1024)
-    async for buf in stream:
-        print(len(buf))
-    ```
+    **Example:**
 
-    Using as a sync iterator:
     ```py
     resp = obs.get(store, path)
     # 20MB chunk size in stream
@@ -147,17 +138,11 @@ class GetResult(Protocol):
     for buf in stream:
         print(len(buf))
     ```
-
-    Note that after calling `bytes`, `bytes_async`, or `stream`, you will no longer be
-    able to call other methods on this object, such as the `meta` attribute.
     """
 
     @property
     def attributes(self) -> Attributes:
-        """Additional object attributes.
-
-        This must be accessed _before_ calling `stream`, `bytes`, or `bytes_async`.
-        """
+        """Additional object attributes."""
         ...
 
     def bytes(self) -> Buffer:
@@ -166,6 +151,64 @@ class GetResult(Protocol):
         This implements the Python buffer protocol. You can copy the buffer to Python
         memory by passing to [`bytes`][].
         """
+        ...
+
+    @property
+    def meta(self) -> ObjectMeta:
+        """The ObjectMeta for this object."""
+        ...
+
+    @property
+    def range(self) -> tuple[int, int]:
+        """The range of bytes returned by this request.
+
+        Note that this is `(start, stop)` **not** `(start, length)`.
+        """
+        ...
+
+    def stream(self, min_chunk_size: int = 10 * 1024 * 1024) -> BufferIterator:
+        r"""Return a chunked stream over the result's bytes.
+
+        Args:
+            min_chunk_size: The minimum size in bytes for each chunk in the returned
+                `BufferStream`. All chunks except for the last chunk will be at least
+                this size. Defaults to 10\*1024\*1024 (10MB).
+
+        Returns:
+            A chunked stream
+
+        """
+        ...
+
+    def __iter__(self) -> BufferStream:
+        """Return a chunked stream over the result's bytes.
+
+        Uses the default (10MB) chunk size.
+        """
+        ...
+
+
+class GetResultAsync(Protocol):
+    """Result for an async get request.
+
+    You can materialize the entire buffer by using `bytes_async`, or you can stream the
+    result using `stream`. `__aiter__` is implemented as an alias to `stream`, so you
+    can alternatively call `aiter()` on `GetResult` to start an iterator.
+
+    **Example:**
+
+    ```py
+    resp = await obs.get_async(store, path)
+    # 5MB chunk size in stream
+    stream = resp.stream(min_chunk_size=5 * 1024 * 1024)
+    async for buf in stream:
+        print(len(buf))
+    ```
+    """
+
+    @property
+    def attributes(self) -> Attributes:
+        """Additional object attributes."""
         ...
 
     async def bytes_async(self) -> Buffer:
@@ -178,10 +221,7 @@ class GetResult(Protocol):
 
     @property
     def meta(self) -> ObjectMeta:
-        """The ObjectMeta for this object.
-
-        This must be accessed _before_ calling `stream`, `bytes`, or `bytes_async`.
-        """
+        """The ObjectMeta for this object."""
         ...
 
     @property
@@ -190,7 +230,6 @@ class GetResult(Protocol):
 
         Note that this is `(start, stop)` **not** `(start, length)`.
 
-        This must be accessed _before_ calling `stream`, `bytes`, or `bytes_async`.
         """
         ...
 
@@ -215,30 +254,27 @@ class GetResult(Protocol):
         """
         ...
 
-    def __iter__(self) -> BufferStream:
-        """Return a chunked stream over the result's bytes.
 
-        Uses the default (10MB) chunk size.
-        """
-        ...
-
-
-class BufferStream(Protocol):
-    """An async stream of bytes."""
-
-    def __aiter__(self) -> Self:
-        """Return `Self` as an async iterator."""
-        ...
+class BufferIterator(Protocol):
+    """A synchronous iterator of bytes."""
 
     def __iter__(self) -> Self:
         """Return `Self` as an async iterator."""
         ...
 
-    async def __anext__(self) -> Buffer:
+    def __next__(self) -> Buffer:
         """Return the next Buffer chunk in the stream."""
         ...
 
-    def __next__(self) -> Buffer:
+
+class BufferStream(Protocol):
+    """An asynchronous iterator of bytes."""
+
+    def __aiter__(self) -> Self:
+        """Return `Self` as an async iterator."""
+        ...
+
+    async def __anext__(self) -> Buffer:
         """Return the next Buffer chunk in the stream."""
         ...
 
@@ -269,7 +305,7 @@ class GetAsync(Protocol):
         path: str,
         *,
         options: GetOptions | None = None,
-    ) -> GetResult:
+    ) -> GetResultAsync:
         """Call `get` asynchronously.
 
         Refer to the documentation for [Get][obspec.Get].

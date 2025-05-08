@@ -35,16 +35,34 @@ class ListResult(TypedDict, Generic[ListChunkType_co]):
     """Object metadata for the listing"""
 
 
+class ListIterator(Protocol[ListChunkType_co]):
+    """A stream of [ObjectMeta][obspec.ObjectMeta] that can be polled in a sync or
+    async fashion.
+    """  # noqa: D205
+
+    def __iter__(self) -> Self:
+        """Return `Self` as an async iterator."""
+        ...
+
+    def collect(self) -> ListChunkType_co:
+        """Collect all remaining ObjectMeta objects in the stream.
+
+        This ignores the `chunk_size` parameter from the `list` call and collects all
+        remaining data into a single chunk.
+        """
+        ...
+
+    def __next__(self) -> ListChunkType_co:
+        """Return the next chunk of ObjectMeta in the stream."""
+        ...
+
+
 class ListStream(Protocol[ListChunkType_co]):
     """A stream of [ObjectMeta][obspec.ObjectMeta] that can be polled in a sync or
     async fashion.
     """  # noqa: D205
 
     def __aiter__(self) -> Self:
-        """Return `Self` as an async iterator."""
-        ...
-
-    def __iter__(self) -> Self:
         """Return `Self` as an async iterator."""
         ...
 
@@ -56,19 +74,7 @@ class ListStream(Protocol[ListChunkType_co]):
         """
         ...
 
-    def collect(self) -> ListChunkType_co:
-        """Collect all remaining ObjectMeta objects in the stream.
-
-        This ignores the `chunk_size` parameter from the `list` call and collects all
-        remaining data into a single chunk.
-        """
-        ...
-
     async def __anext__(self) -> ListChunkType_co:
-        """Return the next chunk of ObjectMeta in the stream."""
-        ...
-
-    def __next__(self) -> ListChunkType_co:
         """Return the next chunk of ObjectMeta in the stream."""
         ...
 
@@ -82,7 +88,7 @@ class List(Protocol):
         offset: str | None = None,
         chunk_size: int = 50,
         return_arrow: Literal[True],
-    ) -> ListStream[ArrowArrayExportable]: ...
+    ) -> ListIterator[ArrowArrayExportable]: ...
     @overload
     def list(
         self,
@@ -91,7 +97,7 @@ class List(Protocol):
         offset: str | None = None,
         chunk_size: int = 50,
         return_arrow: Literal[False] = False,
-    ) -> ListStream[list[ObjectMeta]]: ...
+    ) -> ListIterator[list[ObjectMeta]]: ...
     def list(
         self,
         prefix: str | None = None,
@@ -99,7 +105,7 @@ class List(Protocol):
         offset: str | None = None,
         chunk_size: int = 50,
         return_arrow: bool = False,
-    ) -> ListStream[ArrowArrayExportable] | ListStream[list[ObjectMeta]]:
+    ) -> ListIterator[ArrowArrayExportable] | ListIterator[list[ObjectMeta]]:
         """List all the objects with the given prefix.
 
         Prefixes are evaluated on a path segment basis, i.e. `foo/bar/` is a prefix of
@@ -122,16 +128,6 @@ class List(Protocol):
         for list_result in stream:
             print(list_result[0])
             # {'path': 'file0.txt', 'last_modified': datetime.datetime(2024, 10, 23, 19, 19, 28, 781723, tzinfo=datetime.timezone.utc), 'size': 3, 'e_tag': '0', 'version': None}
-            break
-        ```
-
-        Asynchronously iterate through list results. Just change `for` to `async for`:
-
-        ```py
-        stream = obs.list(store, chunk_size=10)
-        async for list_result in stream:
-            print(list_result[2])
-            # {'path': 'file10.txt', 'last_modified': datetime.datetime(2024, 10, 23, 19, 21, 46, 224725, tzinfo=datetime.timezone.utc), 'size': 3, 'e_tag': '10', 'version': None}
             break
         ```
 
@@ -161,11 +157,6 @@ class List(Protocol):
             The order of returned [`ObjectMeta`][obspec.ObjectMeta] is not
             guaranteed
 
-        !!! note
-            There is no async version of this method, because `list` is not async under
-            the hood, rather it only instantiates a stream, which can be polled in
-            synchronous or asynchronous fashion. See [`ListStream`][obspec.ListStream].
-
         Args:
             prefix: The prefix within ObjectStore to use for listing. Defaults to None.
 
@@ -188,6 +179,55 @@ class List(Protocol):
         Returns:
             A ListStream, which you can iterate through to access list results.
 
+        """  # noqa: E501
+        ...
+
+
+class ListAsync(Protocol):
+    @overload
+    def list_async(
+        self,
+        prefix: str | None = None,
+        *,
+        offset: str | None = None,
+        chunk_size: int = 50,
+        return_arrow: Literal[True],
+    ) -> ListStream[ArrowArrayExportable]: ...
+    @overload
+    def list_async(
+        self,
+        prefix: str | None = None,
+        *,
+        offset: str | None = None,
+        chunk_size: int = 50,
+        return_arrow: Literal[False] = False,
+    ) -> ListStream[list[ObjectMeta]]: ...
+    def list_async(
+        self,
+        prefix: str | None = None,
+        *,
+        offset: str | None = None,
+        chunk_size: int = 50,
+        return_arrow: bool = False,
+    ) -> ListStream[ArrowArrayExportable] | ListStream[list[ObjectMeta]]:
+        """List all the objects with the given prefix.
+
+        Note that this method itself is **not async**. It's a synchronous method but
+        returns an **async iterator**.
+
+        Refer to [obspec.List][obspec.List] for more information about list semantics.
+
+        **Examples**:
+
+        Asynchronously iterate through list results. Just change `for` to `async for`:
+
+        ```py
+        stream = obs.list_async(store, chunk_size=10)
+        async for list_result in stream:
+            print(list_result[2])
+            # {'path': 'file10.txt', 'last_modified': datetime.datetime(2024, 10, 23, 19, 21, 46, 224725, tzinfo=datetime.timezone.utc), 'size': 3, 'e_tag': '10', 'version': None}
+            break
+        ```
         """  # noqa: E501
         ...
 

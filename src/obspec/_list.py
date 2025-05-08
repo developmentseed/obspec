@@ -1,26 +1,12 @@
 from __future__ import annotations
 
-from typing import Generic, Literal, Protocol, Self, TypedDict, TypeVar, overload
+from typing import TYPE_CHECKING, Protocol, Self, TypedDict
 
-from ._meta import ObjectMeta
-from .arrow import ArrowArrayExportable, ArrowStreamExportable
-
-ListChunkType_co = TypeVar(
-    "ListChunkType_co",
-    list[ObjectMeta],
-    ArrowArrayExportable,
-    ArrowStreamExportable,
-    covariant=True,
-)
-"""The data structure used for holding list results.
-
-By default, listing APIs return a `list` of [`ObjectMeta`][obspec.ObjectMeta]. However
-for improved performance when listing large buckets, you can pass `return_arrow=True`.
-Then an Arrow `RecordBatch` will be returned instead.
-"""
+if TYPE_CHECKING:
+    from ._meta import ObjectMeta
 
 
-class ListResult(TypedDict, Generic[ListChunkType_co]):
+class ListResult(TypedDict):
     """Result of a list call.
 
     Includes objects, prefixes (directories) and a token for the next set of results.
@@ -31,11 +17,11 @@ class ListResult(TypedDict, Generic[ListChunkType_co]):
     common_prefixes: list[str]
     """Prefixes that are common (like directories)"""
 
-    objects: ListChunkType_co
+    objects: list[ObjectMeta]
     """Object metadata for the listing"""
 
 
-class ListStream(Protocol[ListChunkType_co]):
+class ListStream(Protocol):
     """A stream of [ObjectMeta][obspec.ObjectMeta] that can be polled in a sync or
     async fashion.
     """  # noqa: D205
@@ -48,7 +34,7 @@ class ListStream(Protocol[ListChunkType_co]):
         """Return `Self` as an async iterator."""
         ...
 
-    async def collect_async(self) -> ListChunkType_co:
+    async def collect_async(self) -> list[ObjectMeta]:
         """Collect all remaining ObjectMeta objects in the stream.
 
         This ignores the `chunk_size` parameter from the `list` call and collects all
@@ -56,7 +42,7 @@ class ListStream(Protocol[ListChunkType_co]):
         """
         ...
 
-    def collect(self) -> ListChunkType_co:
+    def collect(self) -> list[ObjectMeta]:
         """Collect all remaining ObjectMeta objects in the stream.
 
         This ignores the `chunk_size` parameter from the `list` call and collects all
@@ -64,42 +50,23 @@ class ListStream(Protocol[ListChunkType_co]):
         """
         ...
 
-    async def __anext__(self) -> ListChunkType_co:
+    async def __anext__(self) -> list[ObjectMeta]:
         """Return the next chunk of ObjectMeta in the stream."""
         ...
 
-    def __next__(self) -> ListChunkType_co:
+    def __next__(self) -> list[ObjectMeta]:
         """Return the next chunk of ObjectMeta in the stream."""
         ...
 
 
 class List(Protocol):
-    @overload
     def list(
         self,
         prefix: str | None = None,
         *,
         offset: str | None = None,
         chunk_size: int = 50,
-        return_arrow: Literal[True],
-    ) -> ListStream[ArrowArrayExportable]: ...
-    @overload
-    def list(
-        self,
-        prefix: str | None = None,
-        *,
-        offset: str | None = None,
-        chunk_size: int = 50,
-        return_arrow: Literal[False] = False,
-    ) -> ListStream[list[ObjectMeta]]: ...
-    def list(
-        self,
-        prefix: str | None = None,
-        *,
-        offset: str | None = None,
-        chunk_size: int = 50,
-        return_arrow: bool = False,
-    ) -> ListStream[ArrowArrayExportable] | ListStream[list[ObjectMeta]]:
+    ) -> ListStream:
         """List all the objects with the given prefix.
 
         Prefixes are evaluated on a path segment basis, i.e. `foo/bar/` is a prefix of
@@ -193,26 +160,10 @@ class List(Protocol):
 
 
 class ListWithDelimiter(Protocol):
-    @overload
     def list_with_delimiter(
         self,
         prefix: str | None = None,
-        *,
-        return_arrow: Literal[True],
-    ) -> ListResult[ArrowStreamExportable]: ...
-    @overload
-    def list_with_delimiter(
-        self,
-        prefix: str | None = None,
-        *,
-        return_arrow: Literal[False] = False,
-    ) -> ListResult[list[ObjectMeta]]: ...
-    def list_with_delimiter(
-        self,
-        prefix: str | None = None,
-        *,
-        return_arrow: bool = False,
-    ) -> ListResult[ArrowStreamExportable] | ListResult[list[ObjectMeta]]:
+    ) -> ListResult:
         """List objects with the given prefix and an implementation specific
         delimiter.
 
@@ -246,26 +197,10 @@ class ListWithDelimiter(Protocol):
 
 
 class ListWithDelimiterAsync(Protocol):
-    @overload
     async def list_with_delimiter_async(
         self,
         prefix: str | None = None,
-        *,
-        return_arrow: Literal[True],
-    ) -> ListResult[ArrowStreamExportable]: ...
-    @overload
-    async def list_with_delimiter_async(
-        self,
-        prefix: str | None = None,
-        *,
-        return_arrow: Literal[False] = False,
-    ) -> ListResult[list[ObjectMeta]]: ...
-    async def list_with_delimiter_async(
-        self,
-        prefix: str | None = None,
-        *,
-        return_arrow: bool = False,
-    ) -> ListResult[ArrowStreamExportable] | ListResult[list[ObjectMeta]]:
+    ) -> ListResult:
         """Call `list_with_delimiter` asynchronously.
 
         Refer to the documentation for

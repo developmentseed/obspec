@@ -1,4 +1,12 @@
-"""Exceptions."""
+"""Common exceptions.
+
+These may be restored in the future, but are not currently in the public interface
+because exceptions only support nominal subtyping (subclassing) and not structural
+subtyping (protocols). This means that obstore wouldn't be able to use these same
+exceptions without relying on obspec which gets us into circular dependencies.
+"""
+
+import builtins
 
 
 class BaseError(Exception):
@@ -37,7 +45,7 @@ class NotModifiedError(BaseError):
     """Error when the object at the location isn't modified."""
 
 
-class NotImplementedError(BaseError, NotImplementedError):  # noqa: A001
+class NotImplementedError(BaseError, builtins.NotImplementedError):  # noqa: A001
     """Error when an operation is not implemented.
 
     Subclasses from the built-in [NotImplementedError][].

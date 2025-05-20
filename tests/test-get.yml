@@ -1,10 +1,15 @@
 - case: accepts_get
   main: |
-    from collections.abc import Buffer
+    import sys
 
     from typing_extensions import assert_type
 
     from obspec import Get
+
+    if sys.version_info >= (3, 12):
+        from collections.abc import Buffer
+    else:
+        from typing_extensions import Buffer
 
 
     def accepts_get(client: Get) -> None:

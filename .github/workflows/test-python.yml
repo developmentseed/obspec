@@ -57,9 +57,9 @@ jobs:
       - name: Set up Python
         run: uv python install ${{ matrix.python-version }}
 
-      # - name: Run python tests
-      #   run: |
-      #     uv run pytest tests
+      - name: Run python tests
+        run: |
+          uv run pytest tests
 
       # Ensure docs build without warnings
       - name: Check docs

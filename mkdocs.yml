@@ -120,7 +120,7 @@ plugins:
             show_symbol_type_toc: true
             signature_crossrefs: true
 
-          import:
+          inventories:
             - https://arrow.apache.org/docs/objects.inv
             - https://docs.aiohttp.org/en/stable/objects.inv
             - https://docs.pola.rs/api/python/stable/objects.inv

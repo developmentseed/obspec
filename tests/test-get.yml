@@ -1,0 +1,20 @@
+- case: accepts_get
+  main: |
+    import sys
+
+    from typing_extensions import assert_type
+
+    from obspec import Get
+
+    if sys.version_info >= (3, 12):
+        from collections.abc import Buffer
+    else:
+        from typing_extensions import Buffer
+
+
+    def accepts_get(client: Get) -> None:
+        resp = client.get("path/to/file")
+        assert_type(resp.range, tuple[int, int])
+        buffer_iterator = resp.stream()
+        for chunk in buffer_iterator:
+            assert_type(chunk, Buffer)

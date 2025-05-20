@@ -167,8 +167,6 @@ class List(Protocol):
                 serialization overhead between Rust and Python and so this can be
                 significantly faster for large list operations. Defaults to `False`.
 
-                If this is `True`, the `arro3-core` Python package must be installed.
-
         Returns:
             A ListStream, which you can iterate through to access list results.
 
@@ -240,8 +238,6 @@ class ListAsync(Protocol):
                 `RecordBatch`, not as a list of Python `dict`s. Arrow removes
                 serialization overhead between Rust and Python and so this can be
                 significantly faster for large list operations. Defaults to `False`.
-
-                If this is `True`, the `arro3-core` Python package must be installed.
 
         Returns:
             A ListStream, which you can iterate through to access list results.

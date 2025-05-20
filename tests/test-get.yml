@@ -1,0 +1,15 @@
+- case: accepts_get
+  main: |
+    from collections.abc import Buffer
+
+    from typing_extensions import assert_type
+
+    from obspec import Get
+
+
+    def accepts_get(client: Get) -> None:
+        resp = client.get("path/to/file")
+        assert_type(resp.range, tuple[int, int])
+        buffer_iterator = resp.stream()
+        for chunk in buffer_iterator:
+            assert_type(chunk, Buffer)

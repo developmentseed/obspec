@@ -161,10 +161,7 @@ class List(Protocol):
                 location greater than `offset`. Defaults to `None`.
             chunk_size: The number of items to collect per chunk in the returned
                 (async) iterator. All chunks except for the last one will have this many
-                items. This is ignored in the
-                [`collect`][obspec.ListStream.collect] and
-                [`collect_async`][obspec.ListStream.collect_async] methods of
-                `ListStream`.
+                items. This is ignored in [`collect`][obspec.ListIterator.collect].
             return_arrow: If `True`, return each batch of list items as an Arrow
                 `RecordBatch`, not as a list of Python `dict`s. Arrow removes
                 serialization overhead between Rust and Python and so this can be
@@ -224,6 +221,31 @@ class ListAsync(Protocol):
             # {'path': 'file10.txt', 'last_modified': datetime.datetime(2024, 10, 23, 19, 21, 46, 224725, tzinfo=datetime.timezone.utc), 'size': 3, 'e_tag': '10', 'version': None}
             break
         ```
+
+        !!! note
+            The order of returned [`ObjectMeta`][obspec.ObjectMeta] is not
+            guaranteed
+
+        Args:
+            prefix: The prefix within ObjectStore to use for listing. Defaults to None.
+
+        Keyword Args:
+            offset: If provided, list all the objects with the given prefix and a
+                location greater than `offset`. Defaults to `None`.
+            chunk_size: The number of items to collect per chunk in the returned
+                (async) iterator. All chunks except for the last one will have this many
+                items. This is ignored in
+                [`collect_async`][obspec.ListStream.collect_async].
+            return_arrow: If `True`, return each batch of list items as an Arrow
+                `RecordBatch`, not as a list of Python `dict`s. Arrow removes
+                serialization overhead between Rust and Python and so this can be
+                significantly faster for large list operations. Defaults to `False`.
+
+                If this is `True`, the `arro3-core` Python package must be installed.
+
+        Returns:
+            A ListStream, which you can iterate through to access list results.
+
         """  # noqa: E501
         ...
 

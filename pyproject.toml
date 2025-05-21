@@ -17,11 +17,11 @@ classifiers = [
 ]
 
 [project.urls]
-homepage = "https://developmentseed.org/obstore/latest/"
-documentation = "https://developmentseed.org/obstore/latest/"
-repository = "https://github.com/developmentseed/obstore"
-issues = "https://github.com/developmentseed/obstore/issues"
-changelog = "https://github.com/developmentseed/obstore/blob/main/obspec/CHANGELOG.md"
+homepage = "https://developmentseed.org/obspec/latest/"
+documentation = "https://developmentseed.org/obspec/latest/"
+repository = "https://github.com/developmentseed/obspec"
+issues = "https://github.com/developmentseed/obspec/issues"
+changelog = "https://github.com/developmentseed/obspec/blob/main/obspec/CHANGELOG.md"
 
 [build-system]
 requires = ["hatchling"]

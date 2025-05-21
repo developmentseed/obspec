@@ -85,18 +85,18 @@ class List(Protocol):
         Synchronously iterate through list results:
 
         ```py
-        import obstore as obs
-        from obstore.store import MemoryStore
+        import obspec
 
-        store = MemoryStore()
-        for i in range(100):
-            obs.put(store, f"file{i}.txt", b"foo")
+        def upload_files(client: obspec.Put):
+            for i in range(100):
+                client.put(f"file{i}.txt", b"foo")
 
-        stream = obs.list(store, chunk_size=10)
-        for list_result in stream:
-            print(list_result[0])
-            # {'path': 'file0.txt', 'last_modified': datetime.datetime(2024, 10, 23, 19, 19, 28, 781723, tzinfo=datetime.timezone.utc), 'size': 3, 'e_tag': '0', 'version': None}
-            break
+        def list_files(client: obspec.List):
+            stream = client.list(chunk_size=10)
+            for list_result in stream:
+                print(list_result[0])
+                # {'path': 'file0.txt', 'last_modified': datetime.datetime(2024, 10, 23, 19, 19, 28, 781723, tzinfo=datetime.timezone.utc), 'size': 3, 'e_tag': '0', 'version': None}
+                break
         ```
 
         !!! note

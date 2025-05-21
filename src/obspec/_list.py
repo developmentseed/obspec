@@ -49,14 +49,6 @@ class ListIterator(Protocol[ListChunkType_co]):
         """Return `Self` as an async iterator."""
         ...
 
-    def collect(self) -> ListChunkType_co:
-        """Collect all remaining ObjectMeta objects in the stream.
-
-        This ignores the `chunk_size` parameter from the `list` call and collects all
-        remaining data into a single chunk.
-        """
-        ...
-
     def __next__(self) -> ListChunkType_co:
         """Return the next chunk of ObjectMeta in the stream."""
         ...
@@ -67,14 +59,6 @@ class ListStream(Protocol[ListChunkType_co]):
 
     def __aiter__(self) -> Self:
         """Return `Self` as an async iterator."""
-        ...
-
-    async def collect_async(self) -> ListChunkType_co:
-        """Collect all remaining ObjectMeta objects in the stream.
-
-        This ignores the `chunk_size` parameter from the `list` call and collects all
-        remaining data into a single chunk.
-        """
         ...
 
     async def __anext__(self) -> ListChunkType_co:

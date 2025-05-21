@@ -1,13 +1,22 @@
 from __future__ import annotations
 
-from typing import Generic, Literal, Protocol, Self, TypedDict, TypeVar, overload
+from collections.abc import Sequence
+from typing import (
+    Generic,
+    Literal,
+    Protocol,
+    Self,
+    TypedDict,
+    TypeVar,
+    overload,
+)
 
 from ._meta import ObjectMeta
 from .arrow import ArrowArrayExportable, ArrowStreamExportable
 
 ListChunkType_co = TypeVar(
     "ListChunkType_co",
-    list[ObjectMeta],
+    Sequence[ObjectMeta],
     ArrowArrayExportable,
     ArrowStreamExportable,
     covariant=True,
@@ -28,7 +37,7 @@ class ListResult(TypedDict, Generic[ListChunkType_co]):
     object storage's limitations.
     """
 
-    common_prefixes: list[str]
+    common_prefixes: Sequence[str]
     """Prefixes that are common (like directories)"""
 
     objects: ListChunkType_co
@@ -93,7 +102,7 @@ class List(Protocol):
         offset: str | None = None,
         chunk_size: int = 50,
         return_arrow: Literal[False] = False,
-    ) -> ListIterator[list[ObjectMeta]]: ...
+    ) -> ListIterator[Sequence[ObjectMeta]]: ...
     def list(
         self,
         prefix: str | None = None,
@@ -101,7 +110,7 @@ class List(Protocol):
         offset: str | None = None,
         chunk_size: int = 50,
         return_arrow: bool = False,
-    ) -> ListIterator[ArrowArrayExportable] | ListIterator[list[ObjectMeta]]:
+    ) -> ListIterator[ArrowArrayExportable] | ListIterator[Sequence[ObjectMeta]]:
         """List all the objects with the given prefix.
 
         Prefixes are evaluated on a path segment basis, i.e. `foo/bar/` is a prefix of
@@ -192,7 +201,7 @@ class ListAsync(Protocol):
         offset: str | None = None,
         chunk_size: int = 50,
         return_arrow: Literal[False] = False,
-    ) -> ListStream[list[ObjectMeta]]: ...
+    ) -> ListStream[Sequence[ObjectMeta]]: ...
     def list_async(
         self,
         prefix: str | None = None,
@@ -200,7 +209,7 @@ class ListAsync(Protocol):
         offset: str | None = None,
         chunk_size: int = 50,
         return_arrow: bool = False,
-    ) -> ListStream[ArrowArrayExportable] | ListStream[list[ObjectMeta]]:
+    ) -> ListStream[ArrowArrayExportable] | ListStream[Sequence[ObjectMeta]]:
         """List all the objects with the given prefix.
 
         Note that this method itself is **not async**. It's a synchronous method but
@@ -260,13 +269,13 @@ class ListWithDelimiter(Protocol):
         prefix: str | None = None,
         *,
         return_arrow: Literal[False] = False,
-    ) -> ListResult[list[ObjectMeta]]: ...
+    ) -> ListResult[Sequence[ObjectMeta]]: ...
     def list_with_delimiter(
         self,
         prefix: str | None = None,
         *,
         return_arrow: bool = False,
-    ) -> ListResult[ArrowStreamExportable] | ListResult[list[ObjectMeta]]:
+    ) -> ListResult[ArrowStreamExportable] | ListResult[Sequence[ObjectMeta]]:
         """List objects with the given prefix and an implementation specific
         delimiter.
 
@@ -313,13 +322,13 @@ class ListWithDelimiterAsync(Protocol):
         prefix: str | None = None,
         *,
         return_arrow: Literal[False] = False,
-    ) -> ListResult[list[ObjectMeta]]: ...
+    ) -> ListResult[Sequence[ObjectMeta]]: ...
     async def list_with_delimiter_async(
         self,
         prefix: str | None = None,
         *,
         return_arrow: bool = False,
-    ) -> ListResult[ArrowStreamExportable] | ListResult[list[ObjectMeta]]:
+    ) -> ListResult[ArrowStreamExportable] | ListResult[Sequence[ObjectMeta]]:
         """Call `list_with_delimiter` asynchronously.
 
         Refer to the documentation for

@@ -83,7 +83,7 @@ class GetOptions(TypedDict, total=False):
     <https://datatracker.ietf.org/doc/html/rfc9110#section-13.1.4>
     """
 
-    range: tuple[int, int] | list[int] | OffsetRange | SuffixRange
+    range: tuple[int, int] | Sequence[int] | OffsetRange | SuffixRange
     """
     Request transfer of only the specified range of bytes.
 
@@ -371,7 +371,7 @@ class GetRanges(Protocol):
         starts: Sequence[int],
         ends: Sequence[int] | None = None,
         lengths: Sequence[int] | None = None,
-    ) -> list[Buffer]:
+    ) -> Sequence[Buffer]:
         """Return the bytes stored at the specified location in the given byte ranges.
 
         To improve performance this will:
@@ -407,7 +407,7 @@ class GetRangesAsync(Protocol):
         starts: Sequence[int],
         ends: Sequence[int] | None = None,
         lengths: Sequence[int] | None = None,
-    ) -> list[Buffer]:
+    ) -> Sequence[Buffer]:
         """Call `get_ranges` asynchronously.
 
         Refer to the documentation for [GetRanges][obspec.GetRanges].

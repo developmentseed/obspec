@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import IO, TYPE_CHECKING, Literal, Protocol, TypeAlias, TypedDict
+from typing import IO, TYPE_CHECKING, Literal, Protocol, TypedDict, Union
 
 if TYPE_CHECKING:
     import sys
@@ -8,6 +8,11 @@ if TYPE_CHECKING:
     from pathlib import Path
 
     from ._attributes import Attributes
+
+    if sys.version_info >= (3, 10):
+        from typing import TypeAlias
+    else:
+        from typing_extensions import TypeAlias
 
     if sys.version_info >= (3, 12):
         from collections.abc import Buffer
@@ -32,7 +37,7 @@ class UpdateVersion(TypedDict, total=False):
     """A version indicator for the newly created object."""
 
 
-PutMode: TypeAlias = Literal["create", "overwrite"] | UpdateVersion
+PutMode: TypeAlias = Union[Literal["create", "overwrite"], UpdateVersion]
 """Configure preconditions for the put operation
 
 There are three modes:

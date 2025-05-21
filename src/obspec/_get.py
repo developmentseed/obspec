@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Protocol, Self, TypedDict
+from typing import TYPE_CHECKING, Protocol, TypedDict
 
 if TYPE_CHECKING:
     import sys
@@ -9,6 +9,11 @@ if TYPE_CHECKING:
 
     from ._attributes import Attributes
     from ._meta import ObjectMeta
+
+    if sys.version_info >= (3, 11):
+        from typing import Self
+    else:
+        from typing_extensions import Self
 
     if sys.version_info >= (3, 12):
         from collections.abc import Buffer

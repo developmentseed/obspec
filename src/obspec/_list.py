@@ -1,10 +1,18 @@
 from __future__ import annotations
 
+import sys
 from collections.abc import Sequence
-from typing import TYPE_CHECKING, Generic, Protocol, TypedDict, TypeVar
+from typing import TYPE_CHECKING, Generic, Protocol, TypeVar
+
+# Note: we need to use the typing-extensions typed dict because we also parametrize over
+# a generic
+# https://stackoverflow.com/a/79300271
+if sys.version_info >= (3, 11):
+    from typing import TypedDict
+else:
+    from typing_extensions import TypedDict
 
 if TYPE_CHECKING:
-    import sys
     from collections.abc import Sequence
 
     from ._meta import ObjectMeta

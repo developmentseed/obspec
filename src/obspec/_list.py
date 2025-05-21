@@ -1,32 +1,15 @@
 from __future__ import annotations
 
-from collections.abc import Sequence
-from typing import (
-    Generic,
-    Literal,
-    Protocol,
-    Self,
-    TypedDict,
-    TypeVar,
-    overload,
-)
+from typing import TYPE_CHECKING, Generic, Protocol, Self, TypedDict, TypeVar
 
-from ._meta import ObjectMeta
-from .arrow import ArrowArrayExportable, ArrowStreamExportable
+if TYPE_CHECKING:
+    from collections.abc import Sequence
 
-ListChunkType_co = TypeVar(
-    "ListChunkType_co",
-    Sequence[ObjectMeta],
-    ArrowArrayExportable,
-    ArrowStreamExportable,
-    covariant=True,
-)
-"""The data structure used for holding list results.
+    from ._meta import ObjectMeta
 
-By default, listing APIs return a `list` of [`ObjectMeta`][obspec.ObjectMeta]. However
-for improved performance when listing large buckets, you can pass `return_arrow=True`.
-Then an Arrow `RecordBatch` will be returned instead.
-"""
+
+ListChunkType_co = TypeVar("ListChunkType_co", covariant=True)
+"""The data structure used for holding list results."""
 
 
 class ListResult(TypedDict, Generic[ListChunkType_co]):
@@ -85,32 +68,13 @@ class ListStream(Protocol[ListChunkType_co]):
 
 
 class List(Protocol):
-    @overload
     def list(
         self,
         prefix: str | None = None,
         *,
         offset: str | None = None,
         chunk_size: int = 50,
-        return_arrow: Literal[True],
-    ) -> ListIterator[ArrowArrayExportable]: ...
-    @overload
-    def list(
-        self,
-        prefix: str | None = None,
-        *,
-        offset: str | None = None,
-        chunk_size: int = 50,
-        return_arrow: Literal[False] = False,
-    ) -> ListIterator[Sequence[ObjectMeta]]: ...
-    def list(
-        self,
-        prefix: str | None = None,
-        *,
-        offset: str | None = None,
-        chunk_size: int = 50,
-        return_arrow: bool = False,
-    ) -> ListIterator[ArrowArrayExportable] | ListIterator[Sequence[ObjectMeta]]:
+    ) -> ListIterator[Sequence[ObjectMeta]]:
         """List all the objects with the given prefix.
 
         Prefixes are evaluated on a path segment basis, i.e. `foo/bar/` is a prefix of
@@ -136,28 +100,6 @@ class List(Protocol):
             break
         ```
 
-        Return large list results as [Arrow](https://arrow.apache.org/). This is most
-        useful with large list operations. In this case you may want to increase the
-        `chunk_size` parameter.
-
-        ```py
-        stream = obs.list(store, chunk_size=1000, return_arrow=True)
-        # Stream is now an iterable/async iterable of `RecordBatch`es
-        for batch in stream:
-            print(batch.num_rows) # 100
-
-            # If desired, convert to a pyarrow RecordBatch (zero-copy) with
-            # `pyarrow.record_batch(batch)`
-            break
-        ```
-
-        Collect all list results into a single Arrow `RecordBatch`.
-
-        ```py
-        stream = obs.list(store, return_arrow=True)
-        batch = stream.collect()
-        ```
-
         !!! note
             The order of returned [`ObjectMeta`][obspec.ObjectMeta] is not
             guaranteed
@@ -171,10 +113,6 @@ class List(Protocol):
             chunk_size: The number of items to collect per chunk in the returned
                 (async) iterator. All chunks except for the last one will have this many
                 items. This is ignored in [`collect`][obspec.ListIterator.collect].
-            return_arrow: If `True`, return each batch of list items as an Arrow
-                `RecordBatch`, not as a list of Python `dict`s. Arrow removes
-                serialization overhead between Rust and Python and so this can be
-                significantly faster for large list operations. Defaults to `False`.
 
         Returns:
             A ListStream, which you can iterate through to access list results.
@@ -184,32 +122,13 @@ class List(Protocol):
 
 
 class ListAsync(Protocol):
-    @overload
     def list_async(
         self,
         prefix: str | None = None,
         *,
         offset: str | None = None,
         chunk_size: int = 50,
-        return_arrow: Literal[True],
-    ) -> ListStream[ArrowArrayExportable]: ...
-    @overload
-    def list_async(
-        self,
-        prefix: str | None = None,
-        *,
-        offset: str | None = None,
-        chunk_size: int = 50,
-        return_arrow: Literal[False] = False,
-    ) -> ListStream[Sequence[ObjectMeta]]: ...
-    def list_async(
-        self,
-        prefix: str | None = None,
-        *,
-        offset: str | None = None,
-        chunk_size: int = 50,
-        return_arrow: bool = False,
-    ) -> ListStream[ArrowArrayExportable] | ListStream[Sequence[ObjectMeta]]:
+    ) -> ListStream[Sequence[ObjectMeta]]:
         """List all the objects with the given prefix.
 
         Note that this method itself is **not async**. It's a synchronous method but
@@ -243,10 +162,6 @@ class ListAsync(Protocol):
                 (async) iterator. All chunks except for the last one will have this many
                 items. This is ignored in
                 [`collect_async`][obspec.ListStream.collect_async].
-            return_arrow: If `True`, return each batch of list items as an Arrow
-                `RecordBatch`, not as a list of Python `dict`s. Arrow removes
-                serialization overhead between Rust and Python and so this can be
-                significantly faster for large list operations. Defaults to `False`.
 
         Returns:
             A ListStream, which you can iterate through to access list results.
@@ -256,26 +171,10 @@ class ListAsync(Protocol):
 
 
 class ListWithDelimiter(Protocol):
-    @overload
     def list_with_delimiter(
         self,
         prefix: str | None = None,
-        *,
-        return_arrow: Literal[True],
-    ) -> ListResult[ArrowStreamExportable]: ...
-    @overload
-    def list_with_delimiter(
-        self,
-        prefix: str | None = None,
-        *,
-        return_arrow: Literal[False] = False,
-    ) -> ListResult[Sequence[ObjectMeta]]: ...
-    def list_with_delimiter(
-        self,
-        prefix: str | None = None,
-        *,
-        return_arrow: bool = False,
-    ) -> ListResult[ArrowStreamExportable] | ListResult[Sequence[ObjectMeta]]:
+    ) -> ListResult[Sequence[ObjectMeta]]:
         """List objects with the given prefix and an implementation specific
         delimiter.
 
@@ -294,13 +193,6 @@ class ListWithDelimiter(Protocol):
         Args:
             prefix: The prefix within ObjectStore to use for listing. Defaults to None.
 
-        Keyword Args:
-            return_arrow: If `True`, return list results as an Arrow
-                `Table`, not as a list of Python `dict`s. Arrow removes serialization
-                overhead between Rust and Python and so this can be significantly faster
-                for large list operations. Defaults to `False`.
-
-
         Returns:
             ListResult
 
@@ -309,26 +201,10 @@ class ListWithDelimiter(Protocol):
 
 
 class ListWithDelimiterAsync(Protocol):
-    @overload
     async def list_with_delimiter_async(
         self,
         prefix: str | None = None,
-        *,
-        return_arrow: Literal[True],
-    ) -> ListResult[ArrowStreamExportable]: ...
-    @overload
-    async def list_with_delimiter_async(
-        self,
-        prefix: str | None = None,
-        *,
-        return_arrow: Literal[False] = False,
-    ) -> ListResult[Sequence[ObjectMeta]]: ...
-    async def list_with_delimiter_async(
-        self,
-        prefix: str | None = None,
-        *,
-        return_arrow: bool = False,
-    ) -> ListResult[ArrowStreamExportable] | ListResult[Sequence[ObjectMeta]]:
+    ) -> ListResult[Sequence[ObjectMeta]]:
         """Call `list_with_delimiter` asynchronously.
 
         Refer to the documentation for

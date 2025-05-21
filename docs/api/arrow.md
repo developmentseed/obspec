@@ -1,3 +1,0 @@
-# Arrow
-
-::: obspec.arrow

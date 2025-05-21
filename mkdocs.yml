@@ -41,7 +41,6 @@ nav:
       - api/put.md
       - api/rename.md
       - api/attributes.md
-      - api/arrow.md
   - CHANGELOG.md
 
 watch:
@@ -121,8 +120,6 @@ plugins:
             signature_crossrefs: true
 
           inventories:
-            - https://arrow.apache.org/docs/objects.inv
-            - https://docs.pola.rs/api/python/stable/objects.inv
             - https://docs.python.org/3/objects.inv
             - https://filesystem-spec.readthedocs.io/en/latest/objects.inv
 

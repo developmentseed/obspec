@@ -2,15 +2,15 @@ from __future__ import annotations
 
 import sys
 from collections.abc import Sequence
-from typing import Generic, Literal, Protocol, Self, TypedDict, TypeVar, overload
+from typing import Generic, Literal, Protocol, TypedDict, TypeVar, overload
 
 from ._meta import ObjectMeta
 from .arrow import ArrowArrayExportable, ArrowStreamExportable
 
-# if sys.version_info >= (3, 11):
-#     from typing import Self
-# else:
-#     from typing_extensions import Self
+if sys.version_info >= (3, 11):
+    from typing import Self
+else:
+    from typing_extensions import Self
 
 ListChunkType_co = TypeVar(
     "ListChunkType_co",

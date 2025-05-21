@@ -6,7 +6,7 @@ license = "MIT"
 readme = "README.md"
 authors = [{ name = "Kyle Barron", email = "kyle@developmentseed.org" }]
 requires-python = ">=3.9"
-dependencies = []
+dependencies = ["typing-extensions; python_version < '3.12'"]
 keywords = []
 classifiers = [
     "Development Status :: 4 - Beta",

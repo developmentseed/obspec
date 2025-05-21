@@ -1,11 +1,18 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Generic, Protocol, Self, TypedDict, TypeVar
+from collections.abc import Sequence
+from typing import TYPE_CHECKING, Generic, Protocol, TypedDict, TypeVar
 
 if TYPE_CHECKING:
+    import sys
     from collections.abc import Sequence
 
     from ._meta import ObjectMeta
+
+    if sys.version_info >= (3, 11):
+        from typing import Self
+    else:
+        from typing_extensions import Self
 
 
 ListChunkType_co = TypeVar("ListChunkType_co", covariant=True)

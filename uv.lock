@@ -918,6 +918,9 @@ wheels = [
 name = "obspec"
 version = "0.1.0b4"
 source = { editable = "." }
+dependencies = [
+    { name = "typing-extensions", marker = "python_full_version < '3.12'" },
+]
 
 [package.dev-dependencies]
 dev = [
@@ -936,6 +939,7 @@ dev = [
 ]
 
 [package.metadata]
+requires-dist = [{ name = "typing-extensions", marker = "python_full_version < '3.12'" }]
 
 [package.metadata.requires-dev]
 dev = [

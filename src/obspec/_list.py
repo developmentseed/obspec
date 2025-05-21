@@ -111,7 +111,7 @@ class List(Protocol):
                 location greater than `offset`. Defaults to `None`.
             chunk_size: The number of items to collect per chunk in the returned
                 (async) iterator. All chunks except for the last one will have this many
-                items. This is ignored in [`collect`][obspec.ListIterator.collect].
+                items.
 
         Returns:
             A ListStream, which you can iterate through to access list results.
@@ -159,8 +159,7 @@ class ListAsync(Protocol):
                 location greater than `offset`. Defaults to `None`.
             chunk_size: The number of items to collect per chunk in the returned
                 (async) iterator. All chunks except for the last one will have this many
-                items. This is ignored in
-                [`collect_async`][obspec.ListStream.collect_async].
+                items.
 
         Returns:
             A ListStream, which you can iterate through to access list results.

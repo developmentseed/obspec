@@ -916,7 +916,7 @@ wheels = [
 
 [[package]]
 name = "obspec"
-version = "0.1.0b4"
+version = "0.1.0b5"
 source = { editable = "." }
 dependencies = [
     { name = "typing-extensions", marker = "python_full_version < '3.12'" },

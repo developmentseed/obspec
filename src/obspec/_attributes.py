@@ -1,17 +1,23 @@
 from __future__ import annotations
 
-from typing import Literal, TypeAlias
+import sys
+from typing import Literal, Union
 
-Attribute: TypeAlias = (
+if sys.version_info >= (3, 10):
+    from typing import TypeAlias
+else:
+    from typing_extensions import TypeAlias
+
+Attribute: TypeAlias = Union[
     Literal[
         "Content-Disposition",
         "Content-Encoding",
         "Content-Language",
         "Content-Type",
         "Cache-Control",
-    ]
-    | str
-)
+    ],
+    str,
+]
 """Additional object attribute types.
 
 - `"Content-Disposition"`: Specifies how the object should be handled by a browser.

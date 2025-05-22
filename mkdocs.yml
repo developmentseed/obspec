@@ -29,8 +29,8 @@ nav:
   #     - integrations.md
   #     - performance.md
   #     - fsspec.md
-  # - Blog:
-  #     - blog/index.md
+  - Blog:
+      - blog/index.md
   - API Reference:
       - api/copy.md
       - api/delete.md

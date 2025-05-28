@@ -21,7 +21,7 @@ homepage = "https://developmentseed.org/obspec/latest/"
 documentation = "https://developmentseed.org/obspec/latest/"
 repository = "https://github.com/developmentseed/obspec"
 issues = "https://github.com/developmentseed/obspec/issues"
-changelog = "https://github.com/developmentseed/obspec/blob/main/obspec/CHANGELOG.md"
+changelog = "https://github.com/developmentseed/obspec/blob/main/CHANGELOG.md"
 
 [build-system]
 requires = ["hatchling"]
@@ -35,8 +35,7 @@ dev-dependencies = [
     "mkdocs-material[imaging]>=9.6.14",
     "mkdocs>=1.6.1",
     "mkdocstrings>=0.29.1",
-    "mkdocstrings-python>=1.16.10",
-    "pip>=24.2",
+    "mkdocstrings-python>=1.16.11",
     "pytest>=8.3.3",
     "ruff>=0.11.10",
     "pytest-mypy-plugins>=3.2.0",
@@ -45,22 +44,8 @@ dev-dependencies = [
 
 [tool.ruff.lint]
 select = ["ALL"]
-ignore = [
-    "D104",   # Missing docstring in public package
-    "EM101",
-    "FIX002", # Line contains TODO, consider resolving the issue
-    "PYI021", # docstring-in-stub
-    "PYI051", # redundant-literal-union
-    "PYI011", # typed-argument-default-in-stub
-    "TD",     # Todo comments
-    "TRY003", # Avoid specifying long messages outside the exception class
-]
 
 [tool.ruff.lint.per-file-ignores]
-"*.pyi" = [
-    "ANN204", # Missing return type annotation for special method
-    "E501",   # Line too long
-]
 "tests/*" = [
     "S101",    # assert
     "ANN201",  # Missing return type annotation for public function

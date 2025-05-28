@@ -1,4 +1,5 @@
-# TODO: think through what should be exported at the top level
+"""Object storage protocol definitions for Python."""
+
 from ._attributes import Attribute, Attributes
 from ._copy import Copy, CopyAsync
 from ._delete import Delete, DeleteAsync

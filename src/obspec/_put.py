@@ -84,7 +84,7 @@ class Put(Protocol):
         mode: PutMode | None = None,
         use_multipart: bool | None = None,
         chunk_size: int = ...,
-        max_concurrency: int = 12,
+        max_concurrency: int = ...,
     ) -> PutResult:
         """Save the provided bytes to the specified location.
 
@@ -92,26 +92,8 @@ class Put(Protocol):
         entirety of `file` to `location`, or fail. No clients should be able to observe
         a partially written object.
 
-        !!! warning "Aborted multipart uploads"
-            This function will automatically use [multipart
-            uploads](https://docs.aws.amazon.com/AmazonS3/latest/userguide/mpuoverview.html)
-            under the hood for large file objects (whenever the length of the file is
-            greater than `chunk_size`) or for iterable or async iterable input.
-
-            Multipart uploads have a variety of advantages, including performance and
-            reliability.
-
-            However, aborted or incomplete multipart uploads can leave partial content
-            in a hidden state in your bucket, silently adding to your storage costs.
-            It's recommended to configure lifecycle rules to automatically delete
-            aborted multipart uploads. See
-            [here](https://docs.aws.amazon.com/AmazonS3/latest/userguide/mpu-abort-incomplete-mpu-lifecycle-config.html)
-            for the AWS S3 documentation, for example.
-
-            You can turn off multipart uploads by passing `use_multipart=False`.
-
         Args:
-            path: The path within ObjectStore for where to save the file.
+            path: The path within the store for where to save the file.
             file: The object to upload. Supports various input:
 
                 - A file-like object opened in binary read mode
@@ -131,14 +113,21 @@ class Put(Protocol):
                 be performed. Defaults to `"overwrite"`.
             attributes: Provide a set of `Attributes`. Defaults to `None`.
             tags: Provide tags for this object. Defaults to `None`.
-            use_multipart: Whether to use a multipart upload under the hood. Defaults
-                using a multipart upload if the length of the file is greater than
-                `chunk_size`. When `use_multipart` is `False`, the entire input will be
-                materialized in memory as part of the upload.
+            use_multipart: Whether to force using a multipart upload.
+
+                If `True`, the upload will always use a multipart upload, even if the
+                length of the file is less than `chunk_size`. If `False`, the upload
+                will never use a multipart upload, and the entire input will be
+                materialized in memory as part of the upload. If `None`, the
+                implementation will choose whether to use a multipart upload based on
+                the length of the file and `chunk_size`.
+
+                Defaults to `None`.
             chunk_size: The size of chunks to use within each part of the multipart
-                upload. Defaults to 5 MB.
-            max_concurrency: The maximum number of chunks to upload concurrently.
-                Defaults to 12.
+                upload. The default is allowed to be implementation-specific.
+            max_concurrency: The maximum number of chunks to upload concurrently. This
+                impacts the memory usage of large file uploads. The default is allowed
+                to be implementation-specific.
 
         """
         ...
@@ -162,7 +151,7 @@ class PutAsync(Protocol):
         mode: PutMode | None = None,
         use_multipart: bool | None = None,
         chunk_size: int = ...,
-        max_concurrency: int = 12,
+        max_concurrency: int = ...,
     ) -> PutResult:
         """Call `put` asynchronously.
 
@@ -176,7 +165,6 @@ class PutAsync(Protocol):
 
         ```py
         from obspec import GetAsync, PutAsync
-
 
         async def streaming_copy(
             fetch_client: GetAsync,

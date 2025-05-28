@@ -72,7 +72,6 @@ class List(Protocol):
         prefix: str | None = None,
         *,
         offset: str | None = None,
-        chunk_size: int = 50,
     ) -> ListIterator[Sequence[ObjectMeta]]:
         """List all the objects with the given prefix.
 
@@ -92,7 +91,7 @@ class List(Protocol):
                 client.put(f"file{i}.txt", b"foo")
 
         def list_files(client: obspec.List):
-            stream = client.list(chunk_size=10)
+            stream = client.list()
             for list_result in stream:
                 print(list_result[0])
                 # {'path': 'file0.txt', 'last_modified': datetime.datetime(2024, 10, 23, 19, 19, 28, 781723, tzinfo=datetime.timezone.utc), 'size': 3, 'e_tag': '0', 'version': None}
@@ -104,17 +103,14 @@ class List(Protocol):
             guaranteed
 
         Args:
-            prefix: The prefix within ObjectStore to use for listing. Defaults to None.
+            prefix: The prefix within the store to use for listing. Defaults to None.
 
         Keyword Args:
             offset: If provided, list all the objects with the given prefix and a
                 location greater than `offset`. Defaults to `None`.
-            chunk_size: The number of items to collect per chunk in the returned
-                (async) iterator. All chunks except for the last one will have this many
-                items.
 
         Returns:
-            A ListStream, which you can iterate through to access list results.
+            A ListIterator, which you can iterate through to access list results.
 
         """  # noqa: E501
         ...
@@ -126,7 +122,6 @@ class ListAsync(Protocol):
         prefix: str | None = None,
         *,
         offset: str | None = None,
-        chunk_size: int = 50,
     ) -> ListStream[Sequence[ObjectMeta]]:
         """List all the objects with the given prefix.
 
@@ -140,7 +135,7 @@ class ListAsync(Protocol):
         Asynchronously iterate through list results. Just change `for` to `async for`:
 
         ```py
-        stream = obs.list_async(store, chunk_size=10)
+        stream = obs.list_async(store)
         async for list_result in stream:
             print(list_result[2])
             # {'path': 'file10.txt', 'last_modified': datetime.datetime(2024, 10, 23, 19, 21, 46, 224725, tzinfo=datetime.timezone.utc), 'size': 3, 'e_tag': '10', 'version': None}
@@ -152,14 +147,11 @@ class ListAsync(Protocol):
             guaranteed
 
         Args:
-            prefix: The prefix within ObjectStore to use for listing. Defaults to None.
+            prefix: The prefix within the store to use for listing. Defaults to None.
 
         Keyword Args:
             offset: If provided, list all the objects with the given prefix and a
                 location greater than `offset`. Defaults to `None`.
-            chunk_size: The number of items to collect per chunk in the returned
-                (async) iterator. All chunks except for the last one will have this many
-                items.
 
         Returns:
             A ListStream, which you can iterate through to access list results.
@@ -189,7 +181,7 @@ class ListWithDelimiter(Protocol):
             the paths in the result.
 
         Args:
-            prefix: The prefix within ObjectStore to use for listing. Defaults to None.
+            prefix: The prefix within the store to use for listing. Defaults to None.
 
         Returns:
             ListResult

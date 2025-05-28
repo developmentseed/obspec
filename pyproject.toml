@@ -44,6 +44,9 @@ dev-dependencies = [
 
 [tool.ruff.lint]
 select = ["ALL"]
+ignore = [
+    "PYI051", # redundant-literal-union
+]
 
 [tool.ruff.lint.per-file-ignores]
 "tests/*" = [

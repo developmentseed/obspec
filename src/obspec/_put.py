@@ -175,12 +175,19 @@ class PutAsync(Protocol):
         operation:
 
         ```py
-        import obstore as obs
+        from obspec import GetAsync, PutAsync
 
-        # This only constructs the stream, it doesn't materialize the data in memory
-        resp = await obs.get_async(store1, path1)
-        # A streaming upload is created to copy the file to path2
-        await obs.put_async(store2, path2)
+
+        async def streaming_copy(
+            fetch_client: GetAsync,
+            put_client: PutAsync,
+            path1: str,
+            path2: str,
+        ):
+            # This only constructs the stream, it doesn't materialize the data in memory
+            resp = await fetch_client.get_async(path1)
+            # A streaming upload is created to copy the file to path2
+            await put_client.put_async(path2, resp)
         ```
         """
         ...

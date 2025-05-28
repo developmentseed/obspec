@@ -1,3 +1,4 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/typeddjango/pytest-mypy-plugins/master/pytest_mypy_plugins/schema.json
 - case: accepts_get
   main: |
     import sys
@@ -15,6 +16,5 @@
     def accepts_get(client: Get) -> None:
         resp = client.get("path/to/file")
         assert_type(resp.range, tuple[int, int])
-        buffer_iterator = resp.stream()
-        for chunk in buffer_iterator:
+        for chunk in resp:
             assert_type(chunk, Buffer)

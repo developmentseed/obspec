@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import sys
-from collections.abc import Sequence
 from typing import TYPE_CHECKING, Generic, Protocol, TypeVar
 
 # Note: we need to use the typing-extensions typed dict because we also parametrize over
@@ -13,14 +12,9 @@ else:
     from typing_extensions import TypedDict
 
 if TYPE_CHECKING:
-    from collections.abc import Sequence
+    from collections.abc import AsyncIterator, Iterator, Sequence
 
     from ._meta import ObjectMeta
-
-    if sys.version_info >= (3, 11):
-        from typing import Self
-    else:
-        from typing_extensions import Self
 
 
 ListChunkType_co = TypeVar("ListChunkType_co", covariant=True)
@@ -42,38 +36,13 @@ class ListResult(TypedDict, Generic[ListChunkType_co]):
     """Object metadata for the listing"""
 
 
-class ListIterator(Protocol[ListChunkType_co]):
-    """A stream of [ObjectMeta][obspec.ObjectMeta] that can be polled synchronously."""
-
-    def __iter__(self) -> Self:
-        """Return `Self` as an async iterator."""
-        ...
-
-    def __next__(self) -> ListChunkType_co:
-        """Return the next chunk of ObjectMeta in the stream."""
-        ...
-
-
-class ListStream(Protocol[ListChunkType_co]):
-    """A stream of [ObjectMeta][obspec.ObjectMeta] that can be polled asynchronously."""
-
-    def __aiter__(self) -> Self:
-        """Return `Self` as an async iterator."""
-        ...
-
-    async def __anext__(self) -> ListChunkType_co:
-        """Return the next chunk of ObjectMeta in the stream."""
-        ...
-
-
 class List(Protocol):
     def list(
         self,
         prefix: str | None = None,
         *,
         offset: str | None = None,
-        chunk_size: int = 50,
-    ) -> ListIterator[Sequence[ObjectMeta]]:
+    ) -> Iterator[Sequence[ObjectMeta]]:
         """List all the objects with the given prefix.
 
         Prefixes are evaluated on a path segment basis, i.e. `foo/bar/` is a prefix of
@@ -85,18 +54,18 @@ class List(Protocol):
         Synchronously iterate through list results:
 
         ```py
-        import obstore as obs
-        from obstore.store import MemoryStore
+        import obspec
 
-        store = MemoryStore()
-        for i in range(100):
-            obs.put(store, f"file{i}.txt", b"foo")
+        def upload_files(client: obspec.Put):
+            for i in range(100):
+                client.put(f"file{i}.txt", b"foo")
 
-        stream = obs.list(store, chunk_size=10)
-        for list_result in stream:
-            print(list_result[0])
-            # {'path': 'file0.txt', 'last_modified': datetime.datetime(2024, 10, 23, 19, 19, 28, 781723, tzinfo=datetime.timezone.utc), 'size': 3, 'e_tag': '0', 'version': None}
-            break
+        def list_files(client: obspec.List):
+            stream = client.list()
+            for list_result in stream:
+                print(list_result[0])
+                # {'path': 'file0.txt', 'last_modified': datetime.datetime(2024, 10, 23, 19, 19, 28, 781723, tzinfo=datetime.timezone.utc), 'size': 3, 'e_tag': '0', 'version': None}
+                break
         ```
 
         !!! note
@@ -104,17 +73,14 @@ class List(Protocol):
             guaranteed
 
         Args:
-            prefix: The prefix within ObjectStore to use for listing. Defaults to None.
+            prefix: The prefix within the store to use for listing. Defaults to None.
 
         Keyword Args:
             offset: If provided, list all the objects with the given prefix and a
                 location greater than `offset`. Defaults to `None`.
-            chunk_size: The number of items to collect per chunk in the returned
-                (async) iterator. All chunks except for the last one will have this many
-                items.
 
         Returns:
-            A ListStream, which you can iterate through to access list results.
+            A ListIterator, which you can iterate through to access list results.
 
         """  # noqa: E501
         ...
@@ -126,8 +92,7 @@ class ListAsync(Protocol):
         prefix: str | None = None,
         *,
         offset: str | None = None,
-        chunk_size: int = 50,
-    ) -> ListStream[Sequence[ObjectMeta]]:
+    ) -> AsyncIterator[Sequence[ObjectMeta]]:
         """List all the objects with the given prefix.
 
         Note that this method itself is **not async**. It's a synchronous method but
@@ -140,7 +105,7 @@ class ListAsync(Protocol):
         Asynchronously iterate through list results. Just change `for` to `async for`:
 
         ```py
-        stream = obs.list_async(store, chunk_size=10)
+        stream = obs.list_async(store)
         async for list_result in stream:
             print(list_result[2])
             # {'path': 'file10.txt', 'last_modified': datetime.datetime(2024, 10, 23, 19, 21, 46, 224725, tzinfo=datetime.timezone.utc), 'size': 3, 'e_tag': '10', 'version': None}
@@ -152,14 +117,11 @@ class ListAsync(Protocol):
             guaranteed
 
         Args:
-            prefix: The prefix within ObjectStore to use for listing. Defaults to None.
+            prefix: The prefix within the store to use for listing. Defaults to None.
 
         Keyword Args:
             offset: If provided, list all the objects with the given prefix and a
                 location greater than `offset`. Defaults to `None`.
-            chunk_size: The number of items to collect per chunk in the returned
-                (async) iterator. All chunks except for the last one will have this many
-                items.
 
         Returns:
             A ListStream, which you can iterate through to access list results.
@@ -189,7 +151,7 @@ class ListWithDelimiter(Protocol):
             the paths in the result.
 
         Args:
-            prefix: The prefix within ObjectStore to use for listing. Defaults to None.
+            prefix: The prefix within the store to use for listing. Defaults to None.
 
         Returns:
             ListResult

@@ -1,24 +1,20 @@
 from __future__ import annotations
 
+import sys
+from collections.abc import AsyncIterable, Iterable
 from typing import TYPE_CHECKING, Protocol, TypedDict
 
+if sys.version_info >= (3, 12):
+    from collections.abc import Buffer
+else:
+    from typing_extensions import Buffer
+
 if TYPE_CHECKING:
-    import sys
     from collections.abc import Sequence
     from datetime import datetime
 
     from ._attributes import Attributes
     from ._meta import ObjectMeta
-
-    if sys.version_info >= (3, 11):
-        from typing import Self
-    else:
-        from typing_extensions import Self
-
-    if sys.version_info >= (3, 12):
-        from collections.abc import Buffer
-    else:
-        from typing_extensions import Buffer
 
 
 class OffsetRange(TypedDict):
@@ -92,7 +88,7 @@ class GetOptions(TypedDict, total=False):
     """
     Request transfer of only the specified range of bytes.
 
-    The semantics of this tuple are:
+    The semantics of this attribute are:
 
     - `(int, int)`: Request a specific range of bytes `(start, end)`.
 
@@ -127,21 +123,21 @@ class GetOptions(TypedDict, total=False):
     """
 
 
-class GetResult(Protocol):
+class GetResult(Iterable[Buffer], Protocol):
     """Result for a get request.
 
-    You can materialize the entire buffer by using `bytes`, or you can stream the result
-    using `stream`. `__iter__` is implemented as an alias to `stream`, so you can
-    alternatively call `iter()` on `GetResult` to start an iterator.
+    You can materialize the entire buffer by calling the `bytes` method or you can
+    stream the result by iterating over it .
 
     **Example:**
 
     ```py
-    resp = obs.get(store, path)
-    # 20MB chunk size in stream
-    stream = resp.stream(min_chunk_size=20 * 1024 * 1024)
-    for buf in stream:
-        print(len(buf))
+    from obspec import Get
+
+    def streaming_download(client: Get, path: str):
+        resp = client.get(path)
+        for buffer in resp:
+            print(len(buffer))
     ```
     """
 
@@ -171,43 +167,22 @@ class GetResult(Protocol):
         """
         ...
 
-    def stream(self, min_chunk_size: int = 10 * 1024 * 1024) -> BufferIterator:
-        r"""Return a chunked stream over the result's bytes.
 
-        Args:
-            min_chunk_size: The minimum size in bytes for each chunk in the returned
-                `BufferStream`. All chunks except for the last chunk will be at least
-                this size. Defaults to 10\*1024\*1024 (10MB).
-
-        Returns:
-            A chunked stream
-
-        """
-        ...
-
-    def __iter__(self) -> BufferStream:
-        """Return a chunked stream over the result's bytes.
-
-        Uses the default (10MB) chunk size.
-        """
-        ...
-
-
-class GetResultAsync(Protocol):
+class GetResultAsync(AsyncIterable[Buffer], Protocol):
     """Result for an async get request.
 
-    You can materialize the entire buffer by using `bytes_async`, or you can stream the
-    result using `stream`. `__aiter__` is implemented as an alias to `stream`, so you
-    can alternatively call `aiter()` on `GetResult` to start an iterator.
+    You can materialize the entire buffer by calling the `bytes_async` method or you can
+    stream the result by asynchronously iterating over it.
 
     **Example:**
 
     ```py
-    resp = await obs.get_async(store, path)
-    # 5MB chunk size in stream
-    stream = resp.stream(min_chunk_size=5 * 1024 * 1024)
-    async for buf in stream:
-        print(len(buf))
+    from obspec import GetAsync
+
+    async def streaming_download(obs: GetAsync, path: str):
+        resp = await client.get_async(path)
+        async for buffer in resp:
+            print(len(buffer))
     ```
     """
 
@@ -238,51 +213,6 @@ class GetResultAsync(Protocol):
         """
         ...
 
-    def stream(self, min_chunk_size: int = 10 * 1024 * 1024) -> BufferStream:
-        r"""Return a chunked stream over the result's bytes.
-
-        Args:
-            min_chunk_size: The minimum size in bytes for each chunk in the returned
-                `BufferStream`. All chunks except for the last chunk will be at least
-                this size. Defaults to 10\*1024\*1024 (10MB).
-
-        Returns:
-            A chunked stream
-
-        """
-        ...
-
-    def __aiter__(self) -> BufferStream:
-        """Return a chunked stream over the result's bytes.
-
-        Uses the default (10MB) chunk size.
-        """
-        ...
-
-
-class BufferIterator(Protocol):
-    """A synchronous iterator of bytes."""
-
-    def __iter__(self) -> Self:
-        """Return `Self` as an async iterator."""
-        ...
-
-    def __next__(self) -> Buffer:
-        """Return the next Buffer chunk in the stream."""
-        ...
-
-
-class BufferStream(Protocol):
-    """An asynchronous iterator of bytes."""
-
-    def __aiter__(self) -> Self:
-        """Return `Self` as an async iterator."""
-        ...
-
-    async def __anext__(self) -> Buffer:
-        """Return the next Buffer chunk in the stream."""
-        ...
-
 
 class Get(Protocol):
     def get(
@@ -294,7 +224,7 @@ class Get(Protocol):
         """Return the bytes that are stored at the specified location.
 
         Args:
-            path: The path within ObjectStore to retrieve.
+            path: The path within the store to retrieve.
             options: options for accessing the file. Defaults to None.
 
         Returns:
@@ -335,7 +265,7 @@ class GetRange(Protocol):
         exact requested range will be returned.
 
         Args:
-            path: The path within ObjectStore to retrieve.
+            path: The path within the store to retrieve.
 
         Keyword Args:
             start: The start of the byte range.
@@ -345,8 +275,7 @@ class GetRange(Protocol):
                 be non-None.
 
         Returns:
-            A `Buffer` object implementing the Python buffer protocol, allowing
-                zero-copy access to the underlying memory provided by Rust.
+            A `Buffer` object implementing the Python buffer protocol.
 
         """
         ...
@@ -379,14 +308,11 @@ class GetRanges(Protocol):
     ) -> Sequence[Buffer]:
         """Return the bytes stored at the specified location in the given byte ranges.
 
-        To improve performance this will:
-
-        - Transparently combine ranges less than 1MB apart into a single underlying
-          request
-        - Make multiple `fetch` requests in parallel (up to maximum of 10)
+        The choice of how to implement multiple range requests is implementation
+        specific.
 
         Args:
-            path: The path within ObjectStore to retrieve.
+            path: The path within the store to retrieve.
 
         Other Args:
             starts: A sequence of `int` where each offset starts.
@@ -396,9 +322,8 @@ class GetRanges(Protocol):
                 Either `ends` or `lengths` must be non-None.
 
         Returns:
-            A sequence of `Buffer`, one for each range. This `Buffer` object implements
-            the Python buffer protocol, allowing zero-copy access to the underlying
-            memory provided by Rust.
+            A sequence of `Buffer`, one for each range, each implementing the Python
+            buffer protocol.
 
         """
         ...

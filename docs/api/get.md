@@ -9,7 +9,5 @@
 ::: obspec.GetOptions
 ::: obspec.GetResult
 ::: obspec.GetResultAsync
-::: obspec.BufferIterator
-::: obspec.BufferStream
 ::: obspec.OffsetRange
 ::: obspec.SuffixRange

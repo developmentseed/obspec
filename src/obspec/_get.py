@@ -1,24 +1,20 @@
 from __future__ import annotations
 
+import sys
+from collections.abc import AsyncIterable, Iterable
 from typing import TYPE_CHECKING, Protocol, TypedDict
 
+if sys.version_info >= (3, 12):
+    from collections.abc import Buffer
+else:
+    from typing_extensions import Buffer
+
 if TYPE_CHECKING:
-    import sys
     from collections.abc import Sequence
     from datetime import datetime
 
     from ._attributes import Attributes
     from ._meta import ObjectMeta
-
-    if sys.version_info >= (3, 11):
-        from typing import Self
-    else:
-        from typing_extensions import Self
-
-    if sys.version_info >= (3, 12):
-        from collections.abc import Buffer
-    else:
-        from typing_extensions import Buffer
 
 
 class OffsetRange(TypedDict):
@@ -127,7 +123,7 @@ class GetOptions(TypedDict, total=False):
     """
 
 
-class GetResult(Protocol):
+class GetResult(Iterable[Buffer], Protocol):
     """Result for a get request.
 
     You can materialize the entire buffer by calling the `bytes` method or you can
@@ -171,12 +167,8 @@ class GetResult(Protocol):
         """
         ...
 
-    def __iter__(self) -> BufferIterator:
-        """Return a chunked stream over the result's bytes."""
-        ...
 
-
-class GetResultAsync(Protocol):
+class GetResultAsync(AsyncIterable[Buffer], Protocol):
     """Result for an async get request.
 
     You can materialize the entire buffer by calling the `bytes_async` method or you can
@@ -219,37 +211,6 @@ class GetResultAsync(Protocol):
         Note that this is `(start, stop)` **not** `(start, length)`.
 
         """
-        ...
-
-    def __aiter__(self) -> BufferStream:
-        """Return a chunked stream over the result's bytes.
-
-        Uses the default (10MB) chunk size.
-        """
-        ...
-
-
-class BufferIterator(Protocol):
-    """A synchronous iterator of bytes."""
-
-    def __iter__(self) -> Self:
-        """Return `Self` as an async iterator."""
-        ...
-
-    def __next__(self) -> Buffer:
-        """Return the next Buffer chunk in the stream."""
-        ...
-
-
-class BufferStream(Protocol):
-    """An asynchronous iterator of bytes."""
-
-    def __aiter__(self) -> Self:
-        """Return `Self` as an async iterator."""
-        ...
-
-    async def __anext__(self) -> Buffer:
-        """Return the next Buffer chunk in the stream."""
         ...
 
 

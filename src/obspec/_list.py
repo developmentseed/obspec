@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import sys
-from collections.abc import Sequence
 from typing import TYPE_CHECKING, Generic, Protocol, TypeVar
 
 # Note: we need to use the typing-extensions typed dict because we also parametrize over
@@ -13,14 +12,9 @@ else:
     from typing_extensions import TypedDict
 
 if TYPE_CHECKING:
-    from collections.abc import Sequence
+    from collections.abc import AsyncIterator, Iterator, Sequence
 
     from ._meta import ObjectMeta
-
-    if sys.version_info >= (3, 11):
-        from typing import Self
-    else:
-        from typing_extensions import Self
 
 
 ListChunkType_co = TypeVar("ListChunkType_co", covariant=True)
@@ -42,37 +36,13 @@ class ListResult(TypedDict, Generic[ListChunkType_co]):
     """Object metadata for the listing"""
 
 
-class ListIterator(Protocol[ListChunkType_co]):
-    """An iterator of [ObjectMeta][obspec.ObjectMeta] that can be polled synchronously."""  # noqa: E501
-
-    def __iter__(self) -> Self:
-        """Return `Self` as an iterator."""
-        ...
-
-    def __next__(self) -> ListChunkType_co:
-        """Return the next chunk of ObjectMeta in the iterator."""
-        ...
-
-
-class ListStream(Protocol[ListChunkType_co]):
-    """A stream of [ObjectMeta][obspec.ObjectMeta] that can be polled asynchronously."""
-
-    def __aiter__(self) -> Self:
-        """Return `Self` as an async iterator."""
-        ...
-
-    async def __anext__(self) -> ListChunkType_co:
-        """Return the next chunk of ObjectMeta in the stream."""
-        ...
-
-
 class List(Protocol):
     def list(
         self,
         prefix: str | None = None,
         *,
         offset: str | None = None,
-    ) -> ListIterator[Sequence[ObjectMeta]]:
+    ) -> Iterator[Sequence[ObjectMeta]]:
         """List all the objects with the given prefix.
 
         Prefixes are evaluated on a path segment basis, i.e. `foo/bar/` is a prefix of
@@ -122,7 +92,7 @@ class ListAsync(Protocol):
         prefix: str | None = None,
         *,
         offset: str | None = None,
-    ) -> ListStream[Sequence[ObjectMeta]]:
+    ) -> AsyncIterator[Sequence[ObjectMeta]]:
         """List all the objects with the given prefix.
 
         Note that this method itself is **not async**. It's a synchronous method but

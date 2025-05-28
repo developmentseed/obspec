@@ -11,7 +11,7 @@ class Head(Protocol):
         """Return the metadata for the specified location.
 
         Args:
-            path: The path within ObjectStore to retrieve.
+            path: The path within the store to retrieve.
 
         Returns:
             ObjectMeta

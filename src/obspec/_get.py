@@ -171,7 +171,7 @@ class GetResult(Protocol):
         """
         ...
 
-    def __iter__(self) -> BufferStream:
+    def __iter__(self) -> BufferIterator:
         """Return a chunked stream over the result's bytes."""
         ...
 

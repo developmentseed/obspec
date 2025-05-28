@@ -43,14 +43,14 @@ class ListResult(TypedDict, Generic[ListChunkType_co]):
 
 
 class ListIterator(Protocol[ListChunkType_co]):
-    """A stream of [ObjectMeta][obspec.ObjectMeta] that can be polled synchronously."""
+    """An iterator of [ObjectMeta][obspec.ObjectMeta] that can be polled synchronously."""  # noqa: E501
 
     def __iter__(self) -> Self:
-        """Return `Self` as an async iterator."""
+        """Return `Self` as an iterator."""
         ...
 
     def __next__(self) -> ListChunkType_co:
-        """Return the next chunk of ObjectMeta in the stream."""
+        """Return the next chunk of ObjectMeta in the iterator."""
         ...
 
 

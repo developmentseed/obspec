@@ -367,8 +367,6 @@
       
         
       
-        
-      
     
     
     
@@ -711,7 +709,7 @@
         <li class="md-nav__item">
   <a href="#obspec.PutMode" class="md-nav__link">
     <span class="md-ellipsis">
-      <code class="doc-symbol doc-symbol-toc doc-symbol-attribute"></code>&nbsp;obspec.PutMode
+      <code class="doc-symbol doc-symbol-toc doc-symbol-attribute"></code>&nbsp;PutMode
     </span>
   </a>
   
@@ -762,29 +760,6 @@
   
   <span class="md-ellipsis">
     Attributes
-    
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../arrow/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    Arrow
     
   </span>
   
@@ -967,7 +942,7 @@
         <li class="md-nav__item">
   <a href="#obspec.PutMode" class="md-nav__link">
     <span class="md-ellipsis">
-      <code class="doc-symbol doc-symbol-toc doc-symbol-attribute"></code>&nbsp;obspec.PutMode
+      <code class="doc-symbol doc-symbol-toc doc-symbol-attribute"></code>&nbsp;PutMode
     </span>
   </a>
   
@@ -1062,7 +1037,7 @@
    (obspec._put.PutMode)" href="#obspec.PutMode">PutMode</a></span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">use_multipart</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/functions.html#bool">bool</a></span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">chunk_size</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/functions.html#int">int</a></span> <span class="o">=</span> <span class="o">...</span><span class="p">,</span>
-    <span class="n">max_concurrency</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/functions.html#int">int</a></span> <span class="o">=</span> <span class="mi">12</span><span class="p">,</span>
+    <span class="n">max_concurrency</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/functions.html#int">int</a></span> <span class="o">=</span> <span class="o">...</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n"><a class="autorefs autorefs-internal" title="obspec.PutResult (obspec._put.PutResult)" href="#obspec.PutResult">PutResult</a></span>
 </code></pre></div>
 
@@ -1072,22 +1047,6 @@
 <p>The operation is guaranteed to be atomic, it will either successfully write the
 entirety of <code>file</code> to <code>location</code>, or fail. No clients should be able to observe
 a partially written object.</p>
-<div class="admonition warning">
-<p class="admonition-title">Aborted multipart uploads</p>
-<p>This function will automatically use <a href="https://docs.aws.amazon.com/AmazonS3/latest/userguide/mpuoverview.html">multipart
-uploads</a>
-under the hood for large file objects (whenever the length of the file is
-greater than <code>chunk_size</code>) or for iterable or async iterable input.</p>
-<p>Multipart uploads have a variety of advantages, including performance and
-reliability.</p>
-<p>However, aborted or incomplete multipart uploads can leave partial content
-in a hidden state in your bucket, silently adding to your storage costs.
-It's recommended to configure lifecycle rules to automatically delete
-aborted multipart uploads. See
-<a href="https://docs.aws.amazon.com/AmazonS3/latest/userguide/mpu-abort-incomplete-mpu-lifecycle-config.html">here</a>
-for the AWS S3 documentation, for example.</p>
-<p>You can turn off multipart uploads by passing <code>use_multipart=False</code>.</p>
-</div>
 
 
 <p><span class="doc-section-title">Parameters:</span></p>
@@ -1097,7 +1056,7 @@ for the AWS S3 documentation, for example.</p>
               (<code><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/stdtypes.html#str">str</a></code>)
           –
           <div class="doc-md-description">
-            <p>The path within ObjectStore for where to save the file.</p>
+            <p>The path within the store for where to save the file.</p>
           </div>
         </li>
         <li class="doc-section-item field-body">
@@ -1175,10 +1134,14 @@ be performed. Defaults to <code>"overwrite"</code>.</p>
               (<code><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/functions.html#bool">bool</a> | None</code>)
           –
           <div class="doc-md-description">
-            <p>Whether to use a multipart upload under the hood. Defaults
-using a multipart upload if the length of the file is greater than
-<code>chunk_size</code>. When <code>use_multipart</code> is <code>False</code>, the entire input will be
-materialized in memory as part of the upload.</p>
+            <p>Whether to force using a multipart upload.</p>
+<p>If <code>True</code>, the upload will always use a multipart upload, even if the
+length of the file is less than <code>chunk_size</code>. If <code>False</code>, the upload
+will never use a multipart upload, and the entire input will be
+materialized in memory as part of the upload. If <code>None</code>, the
+implementation will choose whether to use a multipart upload based on
+the length of the file and <code>chunk_size</code>.</p>
+<p>Defaults to <code>None</code>.</p>
           </div>
         </li>
         <li class="doc-section-item field-body">
@@ -1187,7 +1150,7 @@ materialized in memory as part of the upload.</p>
           –
           <div class="doc-md-description">
             <p>The size of chunks to use within each part of the multipart
-upload. Defaults to 5 MB.</p>
+upload. The default is allowed to be implementation-specific.</p>
           </div>
         </li>
         <li class="doc-section-item field-body">
@@ -1195,8 +1158,9 @@ upload. Defaults to 5 MB.</p>
               (<code><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/functions.html#int">int</a></code>)
           –
           <div class="doc-md-description">
-            <p>The maximum number of chunks to upload concurrently.
-Defaults to 12.</p>
+            <p>The maximum number of chunks to upload concurrently. This
+impacts the memory usage of large file uploads. The default is allowed
+to be implementation-specific.</p>
           </div>
         </li>
     </ul>
@@ -1287,7 +1251,7 @@ Defaults to 12.</p>
    (obspec._put.PutMode)" href="#obspec.PutMode">PutMode</a></span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">use_multipart</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/functions.html#bool">bool</a></span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">chunk_size</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/functions.html#int">int</a></span> <span class="o">=</span> <span class="o">...</span><span class="p">,</span>
-    <span class="n">max_concurrency</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/functions.html#int">int</a></span> <span class="o">=</span> <span class="mi">12</span><span class="p">,</span>
+    <span class="n">max_concurrency</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/functions.html#int">int</a></span> <span class="o">=</span> <span class="o">...</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n"><a class="autorefs autorefs-internal" title="obspec.PutResult (obspec._put.PutResult)" href="#obspec.PutResult">PutResult</a></span>
 </code></pre></div>
 
@@ -1300,12 +1264,18 @@ iterator or iterable</strong> of objects implementing the Python buffer protocol
 <p>This means, for example, you can pass the result of <code>get_async</code> directly to
 <code>put_async</code>, and the request will be streamed through Python during the put
 operation:</p>
-<div class="highlight"><pre><span></span><code><span class="kn">import</span><span class="w"> </span><span class="nn">obstore</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">obs</span>
+<div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">obspec</span><span class="w"> </span><span class="kn">import</span> <span class="n">GetAsync</span><span class="p">,</span> <span class="n">PutAsync</span>
 
-<span class="c1"># This only constructs the stream, it doesn&#39;t materialize the data in memory</span>
-<span class="n">resp</span> <span class="o">=</span> <span class="k">await</span> <span class="n">obs</span><span class="o">.</span><span class="n">get_async</span><span class="p">(</span><span class="n">store1</span><span class="p">,</span> <span class="n">path1</span><span class="p">)</span>
-<span class="c1"># A streaming upload is created to copy the file to path2</span>
-<span class="k">await</span> <span class="n">obs</span><span class="o">.</span><span class="n">put_async</span><span class="p">(</span><span class="n">store2</span><span class="p">,</span> <span class="n">path2</span><span class="p">)</span>
+<span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">streaming_copy</span><span class="p">(</span>
+    <span class="n">fetch_client</span><span class="p">:</span> <span class="n">GetAsync</span><span class="p">,</span>
+    <span class="n">put_client</span><span class="p">:</span> <span class="n">PutAsync</span><span class="p">,</span>
+    <span class="n">path1</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">path2</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+<span class="p">):</span>
+    <span class="c1"># This only constructs the stream, it doesn&#39;t materialize the data in memory</span>
+    <span class="n">resp</span> <span class="o">=</span> <span class="k">await</span> <span class="n">fetch_client</span><span class="o">.</span><span class="n">get_async</span><span class="p">(</span><span class="n">path1</span><span class="p">)</span>
+    <span class="c1"># A streaming upload is created to copy the file to path2</span>
+    <span class="k">await</span> <span class="n">put_client</span><span class="o">.</span><span class="n">put_async</span><span class="p">(</span><span class="n">path2</span><span class="p">,</span> <span class="n">resp</span><span class="p">)</span>
 </code></pre></div>
 
 
@@ -1524,7 +1494,7 @@ conditional updates, and it is therefore recommended applications preserve both<
   </span>
 
 <a href="#obspec.PutMode" class="headerlink" title="Permanent link">&para;</a></h2>
-<div class="doc-signature codehilite"><pre><span></span><code><span class="n">PutMode</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-external" title="typing.TypeAlias" href="https://docs.python.org/3/library/typing.html#typing.TypeAlias">TypeAlias</a></span> <span class="o">=</span> <span class="n"><a class="autorefs autorefs-external" title="typing.Literal" href="https://docs.python.org/3/library/typing.html#typing.Literal">Literal</a></span><span class="p">[</span><span class="s1">&#39;create&#39;</span><span class="p">,</span> <span class="s1">&#39;overwrite&#39;</span><span class="p">]</span> <span class="o">|</span> <span class="n"><a class="autorefs autorefs-internal" title="obspec.UpdateVersion (obspec._put.UpdateVersion)" href="#obspec.UpdateVersion">UpdateVersion</a></span>
+<div class="doc-signature codehilite"><pre><span></span><code><span class="n">PutMode</span><span class="p">:</span> <span class="n"><span title="typing_extensions.TypeAlias">TypeAlias</span></span> <span class="o">=</span> <span class="n"><a class="autorefs autorefs-external" title="typing.Union" href="https://docs.python.org/3/library/typing.html#typing.Union">Union</a></span><span class="p">[</span><span class="n"><a class="autorefs autorefs-external" title="typing.Literal" href="https://docs.python.org/3/library/typing.html#typing.Literal">Literal</a></span><span class="p">[</span><span class="s1">&#39;create&#39;</span><span class="p">,</span> <span class="s1">&#39;overwrite&#39;</span><span class="p">],</span> <span class="n"><a class="autorefs autorefs-internal" title="obspec.UpdateVersion (obspec._put.UpdateVersion)" href="#obspec.UpdateVersion">UpdateVersion</a></span><span class="p">]</span>
 </code></pre></div>
 
     <div class="doc doc-contents first">

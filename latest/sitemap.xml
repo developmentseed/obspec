@@ -2,54 +2,50 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
     <url>
          <loc>https://developmentseed.org/obspec/latest/</loc>
-         <lastmod>2025-05-20</lastmod>
+         <lastmod>2025-05-28</lastmod>
     </url>
     <url>
          <loc>https://developmentseed.org/obspec/latest/CHANGELOG/</loc>
-         <lastmod>2025-05-20</lastmod>
-    </url>
-    <url>
-         <loc>https://developmentseed.org/obspec/latest/api/arrow/</loc>
-         <lastmod>2025-05-20</lastmod>
+         <lastmod>2025-05-28</lastmod>
     </url>
     <url>
          <loc>https://developmentseed.org/obspec/latest/api/attributes/</loc>
-         <lastmod>2025-05-20</lastmod>
+         <lastmod>2025-05-28</lastmod>
     </url>
     <url>
          <loc>https://developmentseed.org/obspec/latest/api/copy/</loc>
-         <lastmod>2025-05-20</lastmod>
+         <lastmod>2025-05-28</lastmod>
     </url>
     <url>
          <loc>https://developmentseed.org/obspec/latest/api/delete/</loc>
-         <lastmod>2025-05-20</lastmod>
+         <lastmod>2025-05-28</lastmod>
     </url>
     <url>
          <loc>https://developmentseed.org/obspec/latest/api/get/</loc>
-         <lastmod>2025-05-20</lastmod>
+         <lastmod>2025-05-28</lastmod>
     </url>
     <url>
          <loc>https://developmentseed.org/obspec/latest/api/head/</loc>
-         <lastmod>2025-05-20</lastmod>
+         <lastmod>2025-05-28</lastmod>
     </url>
     <url>
          <loc>https://developmentseed.org/obspec/latest/api/list/</loc>
-         <lastmod>2025-05-20</lastmod>
+         <lastmod>2025-05-28</lastmod>
     </url>
     <url>
          <loc>https://developmentseed.org/obspec/latest/api/meta/</loc>
-         <lastmod>2025-05-20</lastmod>
+         <lastmod>2025-05-28</lastmod>
     </url>
     <url>
          <loc>https://developmentseed.org/obspec/latest/api/put/</loc>
-         <lastmod>2025-05-20</lastmod>
+         <lastmod>2025-05-28</lastmod>
     </url>
     <url>
          <loc>https://developmentseed.org/obspec/latest/api/rename/</loc>
-         <lastmod>2025-05-20</lastmod>
+         <lastmod>2025-05-28</lastmod>
     </url>
     <url>
          <loc>https://developmentseed.org/obspec/latest/blog/</loc>
-         <lastmod>2025-05-20</lastmod>
+         <lastmod>2025-05-28</lastmod>
     </url>
 </urlset>

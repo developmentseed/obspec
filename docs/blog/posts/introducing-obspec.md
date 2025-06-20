@@ -9,15 +9,87 @@ authors:
 
 # Introducing Obspec: A Python protocol for interfacing with object storage
 
+Obspec defines a minimal, transparent Python interface for object storage.
 
-
-Obstore is the simplest, highest-throughput Python interface to Amazon S3, Google Cloud Storage, and Azure Storage, powered by Rust.
-
-This post gives an overview of what's new in obstore version 0.4.
+It's designed to abstract away the complexities of different object storage APIs while acknowledging that object storage is _not a filesystem_ and presents more similarities to HTTP requests than Python file objects.
 
 <!-- more -->
 
-## Why?
+## Why a new interface?
+
+The primary existing Python specification used for object storage is [fsspec](https://filesystem-spec.readthedocs.io/en/latest/), which defines a filesystem-like interface based around Python file-like objects.
+
+However this presents an impedance mismatch: object storage is not a filesystem and does not have the same semantics as filesystems. This leads to surprising behavior, poor performance, and integration complexity
+
+### Fsspec's stateful APIs add user uncertainty.
+
+Fsspec has significant layers of caching to try to make object storage behave _like_ a filesystem, but this also causes unpredictable results.
+
+#### Opaque list requests
+
+Take the following example. Is the list request cached? How many requests are made, one or two? What happens if the remote data changes? Will the second list automatically reflect new data?
+
+```py
+from time import sleep
+from fsspec import AbstractFileSystem
+
+def list_files_twice(fs: AbstractFileSystem):
+    fs.ls("s3://mybucket")
+    sleep(5)
+    fs.ls("s3://mybucket")
+```
+
+The API documentation for `ls` [doesn't say](https://filesystem-spec.readthedocs.io/en/latest/api.html#fsspec.spec.AbstractFileSystem.ls) what the default is (only that you _may_ explicitly pass `refresh=True|False` to force a behavior). You have to read implementation-specific source code to find out that, in the case of `s3fs`, the [default is `refresh=False`](https://github.com/fsspec/s3fs/blob/ec57f88c057dfd29fa1db80db423832fbfa4832a/s3fs/core.py#L1021). So the list call is cached, only one HTTP request is made, and the second call to `ls` will not reflect new data without an explicit call to `refresh=True`.
+
+In contrast, since obspec is stateless and abstracts HTTPs requests, not files, the comparable obspec code is easier to understand and reason about.
+
+```py
+from time import sleep
+from obspec import List
+
+def list_files_twice(client: List):
+    list_items = list(client.list("prefix"))
+    sleep(5)
+    list_items = list(client.list("prefix"))
+```
+
+There's no internal caching, two requests are made, and every `list` method call will reflect the latest state of the bucket.
+
+#### Opaque file downloads
+
+Consider the options fsspec provides for downloading data. Fsspec doesn't have a method to stream a file download into memory, so your options are:
+
+1. Materialize the entire file in memory, which is not practical for large files.
+2. Make targeted range requests, which requires you to know the byte ranges you want to download and requires multiple HTTP calls.
+3. Use a file-like object, which is not clear how many HTTP requests it will make, and how caching works.
+4. Download to a local file, which incurs overhead of writing to disk and then reading back into memory.
+
+Suppose we choose option 3, using a file-like object. It's fully opaque how many requests are being made:
+
+```py
+from fsspec import AbstractFileSystem
+
+def iterate_over_file_object(fs: AbstractFileSystem, path: str):
+    with fs.open(path) as f:
+        for line in f:
+            print(line.strip())
+```
+
+In contrast, obspec makes it fully transparent what HTTP requests are happening under the hood. Obspec also allows for streaming a file via a Python iterator:
+
+```py
+from obspec import Get
+
+def download_file(client: Get):
+    response = client.get("my-file.txt")
+    for buffer in response:
+        # Process each buffer chunk as needed
+        print(f"Received buffer of size: {len(memoryview(buffer))} bytes")
+```
+
+Only one HTTP request is made, and you can start processing the data as it arrives without needing to materialize the entire file in memory.
+
+----------
 
 Consistent interface to object storage.
 

@@ -19,9 +19,9 @@ It's designed to abstract away the complexities of different object storage APIs
 
 The primary existing Python specification used for object storage is [fsspec](https://filesystem-spec.readthedocs.io/en/latest/), which defines a filesystem-like interface based around Python file-like objects.
 
-However this presents an impedance mismatch: object storage is not a filesystem and does not have the same semantics as filesystems. This leads to surprising behavior, poor performance, and integration complexity
+However this presents an impedance mismatch: **object storage is not a filesystem** and does not have the same semantics as filesystems. This leads to surprising behavior, poor performance, and integration complexity
 
-### Fsspec's stateful APIs add user uncertainty.
+### File-like, stateful APIs add user ambiguity
 
 Fsspec has significant layers of caching to try to make object storage behave _like_ a filesystem, but this also causes unpredictable results.
 
@@ -101,127 +101,34 @@ Comparison to obstore: Obstore is a concrete implementation; obspec is an abstra
 
 Builds on a series of known protocols. Uses the buffer protocol for representing binary data.
 
-## Compare and contrast to fsspec
-
-1. api surface area of obspec vs fsspec. moving away from trying to make a file system layer which is a poor semantic mismatch and causes confusion and overhead.
-
-2. We don't have any implementation logic inside of obstore. A lot of baked-in fsspec logic is going to go away. If you want to have implementation-specific logic, it can be on top of obspec instead of having to go into obspec and understand what's going on.
+## Features of Obspec
 
 ### Abstraction target
 
-Fsspec:
-Access remote data via stateful file objects
+As mentioned above, obspec intends to abstract stateless, HTTP-like requests, not a file system. While this improves predictability and performance, it also means:
 
+- All operations are atomic (readers cannot observe partial/failed writes)
+- Allows for functionality not native to filesystems, such as preconditions (fetch if unmodified) and atomic multipart uploads
 
-
-```py
-from fsspec import AbstractFileSystem
-
-
-def download_file(fs: AbstractFileSystem) -> str:
-    with fs.open("my-file.txt", "rb") as f:
-        return f.read().decode()
-```
-
-
-Obstore: HTTP requests
-
-Access remote data via HTTP-like requests
-All operations are atomic (readers cannot observe partial/failed writes)
-Allows for functionality not native to filesystems
-Operation preconditions (fetch if unmodified)
-Atomic multipart uploads
-
-
-
-```py
-from obspec import Get
-
-
-def download_file(client: Get) -> str:
-    response = client.get("my-file.txt")
-    # buffer is only known to implement the Buffer Protocol
-    buffer = response.bytes()
-    return bytes(buffer).decode()
-```
-
-!!! note
-
-    Core point: mismatched abstraction, object stores are not filesystems.
-
-### Stateful vs Stateless
-
-Core point: stateful APIs add user uncertainty.
-Is the list request cached?
-How many requests are made?
-What happens if the remote data changes?
-Will the second list automatically reflect new data?
-
-
-We want a clear contract between provider (backend) and consumer (user/library)
-Is the list request cached? (yes)
-How many requests does this make? (1)
-What happens if the remote data changes?
-Will the second list automatically reflect new data? (no, not by default, but could be implementation dependent)
-
-
-```py
-from time import sleep
-
-from fsspec import AbstractFileSystem
-
-
-def list_files_twice(fs: AbstractFileSystem):
-    fs.ls("s3://mybucket")
-    sleep(5)
-    fs.ls("s3://mybucket")
-```
-
-```py
-from time import sleep
-
-from obspec import List
-
-
-def list_files_twice(client: List):
-    list_iter = client.list("prefix")
-    list_items = list(list_iter)
-    sleep(5)
-    list_iter = client.list("prefix")
-    list_items = list(list_iter)
-```
 
 ### API Surface
 
-Core point: obstore has a smaller API surface, easier to understand, compose.
+Obspec has a much smaller API surface than fsspec, which makes it easier to understand, implement, and compose. It also means that it's much rarer for a backend to not implement the full API.
 
-Fsspec:
+Obspec has just 10 core methods:
 
-AbstractFileSystem: 10 public attributes, 56 public methods, more public async methods
-AbstractBufferedFile: 20 public methods
-Common to hit NotImplementedError since not all backends support all filesystem concepts (e.g. async)
+- [`copy`][obspec.Copy]/[`copy_async`][obspec.CopyAsync]: Copy an object within the same store.
+- [`delete`][obspec.Delete]/[`delete_async`][obspec.DeleteAsync]: Delete an object.
+- [`get`][obspec.Get]/[`get_async`][obspec.GetAsync]: Download a file, returning an iterator or async iterator of buffers.
+- [`get_range`][obspec.GetRange]/[`get_range_async`][obspec.GetRangeAsync]: Get a single byte range.
+- [`get_ranges`][obspec.GetRanges]/[`get_ranges_async`][obspec.GetRangesAsync]: Get multiple byte ranges.
+- [`head`][obspec.Head]/[`head_async`][obspec.HeadAsync]: Access file metadata.
+- [`list`][obspec.List]/[`list_async`][obspec.ListAsync]: List objects, returning an iterator or async iterator of metadata.
+- [`list_with_delimiter`][obspec.ListWithDelimiter]/[`list_with_delimiter_async`][obspec.ListWithDelimiterAsync]: List objects within a specific directory.
+- [`put`][obspec.Put]/[`put_async`][obspec.PutAsync]: Upload a file, buffer, or iterable of buffers.
+- [`rename`][obspec.Rename]/[`rename_async`][obspec.RenameAsync]: Move an object from one path to another within the same store.
 
-Obstore:
-
-Just 11 methods total: Core operations that object stores support natively
-Full clarity of underlying HTTP calls
-E.g. opening an fsspec file and then iterating over the responses… unclear how many raw HTTP requests that translates into.
-Predictable performance.
-No automatic caching (to be provided on top)
-Very rare NotImplementedError: Azure suffix requests
-
-
-copy/copy_async: Copy an object
-delete/delete_async: Delete an object
-get: Download a file
-get_range/get_range_async: Get a byte range
-get_ranges/get_ranges_async: Get multiple byte ranges
-head/head_async: Access file metadata
-list: List objects
-list_with_delimiter/list_with_delimiter_async: List objects within a specific “directory”, avoiding recursing into further directories.
-put/put_async: Upload to file
-rename/rename_async: Move an object from one path to another
-sign/sign_async: Create a signed URL
+All methods have both synchronous and asynchronous variants, allowing for flexibility in how you use them.
 
 ### Streaming
 
@@ -270,6 +177,28 @@ async def streaming_download(client: GetAsync):
 
 
 
+
+
+```py
+from obspec import Get
+
+
+def download_file(client: Get) -> str:
+    response = client.get("my-file.txt")
+    # buffer is only known to implement the Buffer Protocol
+    buffer = response.bytes()
+    return bytes(buffer).decode()
+```
+
+
+
+1. api surface area of obspec vs fsspec. moving away from trying to make a file system layer which is a poor semantic mismatch and causes confusion and overhead.
+
+2. We don't have any implementation logic inside of obstore. A lot of baked-in fsspec logic is going to go away. If you want to have implementation-specific logic, it can be on top of obspec instead of having to go into obspec and understand what's going on.
+
+
+## Usage
+
 ### Intersecting features
 
 Not all backends will support all features.
@@ -278,9 +207,6 @@ This is why obspec is defined as a set of independent protocols. Users can inter
 
 ### Full async API
 
-### Type hinting
-
-Fully type hinted
 
 ### Manner of subtyping
 

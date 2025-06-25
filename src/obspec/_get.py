@@ -126,7 +126,7 @@ class GetOptions(TypedDict, total=False):
 class GetResult(Iterable[Buffer], Protocol):
     """Result for a get request.
 
-    You can materialize the entire buffer by calling the `bytes` method or you can
+    You can materialize the entire buffer by calling the `buffer` method or you can
     stream the result by iterating over it .
 
     **Example:**
@@ -137,7 +137,7 @@ class GetResult(Iterable[Buffer], Protocol):
     def streaming_download(client: Get, path: str):
         resp = client.get(path)
         for buffer in resp:
-            print(len(buffer))
+            print(len(memoryview(buffer)))
     ```
     """
 
@@ -146,7 +146,7 @@ class GetResult(Iterable[Buffer], Protocol):
         """Additional object attributes."""
         ...
 
-    def bytes(self) -> Buffer:
+    def buffer(self) -> Buffer:
         """Collect the data into a `Buffer` object.
 
         This implements the Python buffer protocol. You can copy the buffer to Python
@@ -171,8 +171,8 @@ class GetResult(Iterable[Buffer], Protocol):
 class GetResultAsync(AsyncIterable[Buffer], Protocol):
     """Result for an async get request.
 
-    You can materialize the entire buffer by calling the `bytes_async` method or you can
-    stream the result by asynchronously iterating over it.
+    You can materialize the entire buffer by calling the `buffer_async` method or you
+    can stream the result by asynchronously iterating over it.
 
     **Example:**
 
@@ -182,7 +182,7 @@ class GetResultAsync(AsyncIterable[Buffer], Protocol):
     async def streaming_download(obs: GetAsync, path: str):
         resp = await client.get_async(path)
         async for buffer in resp:
-            print(len(buffer))
+            print(len(memoryview(buffer)))
     ```
     """
 
@@ -191,7 +191,7 @@ class GetResultAsync(AsyncIterable[Buffer], Protocol):
         """Additional object attributes."""
         ...
 
-    async def bytes_async(self) -> Buffer:
+    async def buffer_async(self) -> Buffer:
         """Collect the data into a `Buffer` object.
 
         This implements the Python buffer protocol. You can copy the buffer to Python

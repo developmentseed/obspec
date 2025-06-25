@@ -15,8 +15,6 @@ It's designed to abstract away the complexities of different object storage prov
 
 <!-- more -->
 
-<!-- ## Why a new interface? -->
-
 The primary existing Python specification used for object storage is [fsspec](https://filesystem-spec.readthedocs.io/en/latest/), which defines a filesystem-like interface based around Python file-like objects.
 
 However this presents an impedance mismatch: **object storage is not a filesystem** and does not have the same semantics as filesystems. This leads to surprising behavior, poor performance, and integration complexity.
@@ -136,7 +134,6 @@ Fsspec hardly has any support for static typing, which makes it hard for a user 
 
 Obspec is **fully statically typed**. This provides excellent in-editor documentation and autocompletion, as well as static warnings when the interface is used incorrectly.
 
-
 <!-- 1. api surface area of obspec vs fsspec. moving away from trying to make a file system layer which is a poor semantic mismatch and causes confusion and overhead.
 
 2. We don't have any implementation logic inside of obstore. A lot of baked-in fsspec logic is going to go away. If you want to have implementation-specific logic, it can be on top of obspec instead of having to go into obspec and understand what's going on.
@@ -155,7 +152,6 @@ For example, an `Iterable` is a protocol. You don't need to subclass from a base
 As another example, the [Buffer Protocol](https://docs.python.org/3/c-api/buffer.html) is a protocol to enable zero-copy exchange of binary data between Python libraries. Unlike `Iterable`, this is a protocol that is inaccessible in user Python code and only accessible at the C level, but it's still a protocol. Numpy can create arrays that view a buffer via the buffer protocol, even when Numpy has no prior knowledge of the library that produces the buffer.
 
 Obspec relies on structural subtyping to provide flexibility to implementors while not requiring them to take an explicit dependency on obspec, which would be required to subclass from obspec using nominal subtyping.
-
 
 ## Existing implementations
 

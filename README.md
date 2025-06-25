@@ -2,7 +2,7 @@
 
 A Python protocol for interfacing with object storage.
 
-[Read the release post.](https://developmentseed.org/obspec/latest/blog/2025/06/26/introducing-obspec-a-python-protocol-for-interfacing-with-object-storage/)
+[Read the release post.](https://developmentseed.org/obspec/latest/blog/2025/06/25/introducing-obspec-a-python-protocol-for-interfacing-with-object-storage/)
 
 It's designed to abstract away the complexities of different object storage providers while acknowledging that object storage is _not a filesystem_. The Python protocols present more similarities to HTTP requests than Python file objects.
 

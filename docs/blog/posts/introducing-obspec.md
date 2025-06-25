@@ -1,6 +1,6 @@
 ---
 draft: false
-date: 2025-06-26
+date: 2025-06-25
 categories:
   - Release
 authors:

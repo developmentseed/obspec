@@ -40,11 +40,13 @@ dev-dependencies = [
     "ruff>=0.16.0",
     "pytest-mypy-plugins>=3.2.0",
     "mypy>=1.15.0",
+    "pre-commit>=4.3.0",
 ]
 
 [tool.ruff.lint]
 select = ["ALL"]
 ignore = [
+    "CPY",
     "PYI051", # redundant-literal-union
 ]
 

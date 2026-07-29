@@ -33,11 +33,9 @@ jobs:
           path: ~/.cache/pre-commit
           key: pre-commit-3|${{ hashFiles('.pre-commit-config.yaml') }}
 
-      - name: Install dependencies
-        run: uv sync
-
       - name: run pre-commit
         run: |
+          python -m pip install pre-commit
           uv run pre-commit run --all-files
 
   test-python:

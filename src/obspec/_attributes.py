@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import sys
+from collections.abc import Mapping
 from typing import Literal, Union
 
 if sys.version_info >= (3, 10):
@@ -45,7 +46,7 @@ Attribute: TypeAlias = Union[
 Any other string key specifies a user-defined metadata field for the object.
 """
 
-Attributes: TypeAlias = dict[Attribute, str]
+Attributes: TypeAlias = Mapping[Attribute, str]
 """Additional attributes of an object
 
 Attributes can be specified in [`Put`][obspec.Put]/[`PutAsync`][obspec.PutAsync] and

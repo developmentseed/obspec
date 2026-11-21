@@ -81,7 +81,7 @@ def iterate_over_file_object(fs: AbstractFileSystem, path: str):
 
 ### Obspec: Streaming download
 
-By mapping more closely to the underlying HTTP requests, obspec makes it clearer what HTTP requests are happening under the hood. [obspec.Get] allows for streaming a file download via a Python iterator:
+By mapping more closely to the underlying HTTP requests, obspec makes it clearer what HTTP requests are happening under the hood. [obspec.Get][obspec.Get] allows for streaming a file download via a Python iterator:
 
 ```py
 from obspec import Get

@@ -4,7 +4,13 @@ from typing import IO, TYPE_CHECKING, Literal, Protocol, TypedDict, Union
 
 if TYPE_CHECKING:
     import sys
-    from collections.abc import AsyncIterable, AsyncIterator, Iterable, Iterator
+    from collections.abc import (
+        AsyncIterable,
+        AsyncIterator,
+        Iterable,
+        Iterator,
+        Mapping,
+    )
     from pathlib import Path
 
     from ._attributes import Attributes
@@ -80,7 +86,7 @@ class Put(Protocol):
         file: IO[bytes] | Path | bytes | Buffer | Iterator[Buffer] | Iterable[Buffer],
         *,
         attributes: Attributes | None = None,
-        tags: dict[str, str] | None = None,
+        tags: Mapping[str, str] | None = None,
         mode: PutMode | None = None,
         use_multipart: bool | None = None,
         chunk_size: int = ...,
@@ -147,7 +153,7 @@ class PutAsync(Protocol):
         | Iterable[Buffer],
         *,
         attributes: Attributes | None = None,
-        tags: dict[str, str] | None = None,
+        tags: Mapping[str, str] | None = None,
         mode: PutMode | None = None,
         use_multipart: bool | None = None,
         chunk_size: int = ...,
